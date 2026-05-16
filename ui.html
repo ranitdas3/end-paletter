@@ -1,0 +1,90 @@
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 16px;
+    width: 280px;
+  }
+
+  input {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    box-sizing: border-box;
+  }
+
+  button {
+    padding: 8px 16px;
+    background: #18a0fb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .scale {
+    display: flex;
+    flex-direction: column;
+    margin-top: 16px;
+    gap: 4px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stop-label {
+    font-size: 11px;
+    width: 30px;
+    text-align: right;
+    color: #666;
+  }
+
+  .swatch {
+    width: 120px;
+    height: 24px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .hex-label {
+    font-size: 11px;
+    color: #444;
+    font-family: monospace;
+  }
+</style>
+
+<h2>Color Scale</h2>
+<input id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" />
+<button id="generate">Generate</button>
+
+<div class="scale" id="scale"></div>
+
+<script>
+  document.getElementById('generate').onclick = () => {
+    let color = document.getElementById('colorInput').value.trim();
+    if (!color.startsWith('#')) color = '#' + color;
+    parent.postMessage({ pluginMessage: { type: 'generate-scale', color } }, '*');
+  }
+
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (msg.type === 'scale-result') {
+      const container = document.getElementById('scale');
+      container.innerHTML = '';
+
+      // Display 50 (lightest) to 950 (darkest)
+      msg.scale.forEach(({ stop, hex }) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = `
+          <span class="stop-label">${stop}</span>
+          <div class="swatch" style="background:${hex}"></div>
+          <span class="hex-label">${hex}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+  }
+</script>
