@@ -1,6 +1,6 @@
 figma.showUI(__html__, { width: 320, height: 400 });
 
-figma.ui.onmessage = (msg: { type: string, color: string, system: 'tailwind' | 'material' }) => {
+figma.ui.onmessage = (msg: { type: string, color: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' }) => {
 
   if (msg.type === 'generate-scale') {
     const scale = generateScale(msg.color, msg.system);
@@ -65,18 +65,29 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-function generateScale(hex: string, system: 'tailwind' | 'material' = 'tailwind') {
+function generateScale(hex: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' = 'tailwind') {
   const [h, s] = hexToHsl(hex);
 
   let stops: number[];
   let lightnesses: number[];
 
   if (system === 'material') {
-    // Material: 10 stops: 50, 100, 200 ... 900
     stops = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
     lightnesses = [96, 90, 80, 68, 56, 45, 36, 28, 20, 12];
+  } else if (system === 'ant') {
+    stops = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    lightnesses = [96, 88, 78, 67, 56, 45, 34, 24, 15, 9];
+  } else if (system === 'carbon') {
+    stops = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    lightnesses = [95, 88, 80, 70, 60, 50, 40, 30, 20, 10];
+  } else if (system === 'bootstrap') {
+    stops = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+    lightnesses = [92, 83, 74, 63, 50, 40, 30, 20, 10];
+  } else if (system === 'radix') {
+    stops = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    lightnesses = [99, 97, 94, 90, 85, 79, 71, 60, 49, 41, 28, 10];
   } else {
-    // Tailwind: 11 stops: 50, 100, 200 ... 950
+    // Tailwind
     stops = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
     lightnesses = [97, 94, 86, 76, 64, 52, 40, 30, 22, 14, 10];
   }
