@@ -119,10 +119,13 @@
 </div>
 <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
   <input id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" style="margin: 0; flex: 1;" />
-  <button id="generate">Generate</button>
   <button id="sortToggle" class="icon-btn" style="padding: 6px;">
     <svg id="sortIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 256 256" style="transition: transform 0.2s;"><path d="M136,120v96a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm64,72a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200A8,8,0,0,0,200,192Zm24-32H208V40a8,8,0,0,0-16,0V160H176a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16ZM56,160a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V168A8,8,0,0,0,56,160Zm24-32H64V40a8,8,0,0,0-16,0v88H32a8,8,0,0,0,0,16H80a8,8,0,0,0,0-16Zm72-48H136V40a8,8,0,0,0-16,0V80H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z"></path></svg>
   </button>
+</div>
+<div style="display: flex; gap: 8px; margin-bottom: 12px;">
+  <button id="generate" style="flex: 1;">Generate</button>
+  <button id="insert" style="flex: 1; background: #0f172a;">Insert Frame</button>
 </div>
 
 <div class="scale" id="scale"></div>
@@ -178,6 +181,12 @@
 
   document.getElementById('generate').onclick = () => {
     triggerGeneration();
+  }
+
+  document.getElementById('insert').onclick = () => {
+    let color = document.getElementById('colorInput').value.trim();
+    if (!color.startsWith('#')) color = '#' + color;
+    parent.postMessage({ pluginMessage: { type: 'insert-palette', color, system: selectedSystem } }, '*');
   }
 
   window.onmessage = (event) => {

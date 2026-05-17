@@ -1,10 +1,15 @@
 figma.showUI(__html__, { width: 320, height: 400 });
 
-figma.ui.onmessage = (msg: { type: string, color: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' }) => {
+figma.ui.onmessage = async (msg: { type: string, color: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' }) => {
 
   if (msg.type === 'generate-scale') {
     const scale = generateScale(msg.color, msg.system);
     figma.ui.postMessage({ type: 'scale-result', scale });
+  }
+
+  if (msg.type === 'insert-palette') {
+    const scale = generateScale(msg.color, msg.system);
+    await insertPaletteIntoFigma(scale, msg.system);
   }
 
 };
@@ -96,4 +101,54 @@ function generateScale(hex: string, system: 'tailwind' | 'material' | 'ant' | 'c
     stop,
     hex: hslToHex(h, s, lightnesses[i])
   }));
+}
+
+async function insertPaletteIntoFigma(scale: { stop: number, hex: string }[], system: string) {
+  await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+
+  const parentFrame = figma.createFrame();
+  parentFrame.name = `${system.charAt(0).toUpperCase() + system.slice(1)} Palette`;
+  parentFrame.resize(scale.length * 120 + 20, 160);
+  parentFrame.fills = []; // Transparent parent container frame
+
+  scale.forEach(({ stop, hex }, i) => {
+    const cleanHex = hex.replace(/^#/, '');
+    const r = parseInt(cleanHex.slice(0, 2), 16) / 255;
+    const g = parseInt(cleanHex.slice(2, 4), 16) / 255;
+    const b = parseInt(cleanHex.slice(4, 6), 16) / 255;
+
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    const textColor = luminance > 0.5 ? { r: 0, g: 0, b: 0 } : { r: 1, g: 1, b: 1 };
+
+    const swatch = figma.createFrame();
+    swatch.name = `${system}-${stop}`;
+    swatch.resize(100, 120);
+    swatch.x = 10 + i * 120;
+    swatch.y = 20;
+    swatch.fills = [{ type: 'SOLID', color: { r, g, b } }];
+    swatch.cornerRadius = 8;
+    parentFrame.appendChild(swatch);
+
+    const textStop = figma.createText();
+    textStop.fontName = { family: "Inter", style: "Regular" };
+    textStop.characters = String(stop);
+    textStop.fontSize = 14;
+    textStop.fills = [{ type: 'SOLID', color: textColor }];
+    textStop.x = 12;
+    textStop.y = 12;
+    swatch.appendChild(textStop);
+
+    const textHex = figma.createText();
+    textHex.fontName = { family: "Inter", style: "Regular" };
+    textHex.characters = hex.toUpperCase();
+    textHex.fontSize = 11;
+    textHex.fills = [{ type: 'SOLID', color: textColor }];
+    textHex.x = 12;
+    textHex.y = 96;
+    swatch.appendChild(textHex);
+  });
+
+  figma.currentPage.appendChild(parentFrame);
+  figma.currentPage.selection = [parentFrame];
+  figma.viewport.scrollAndZoomIntoView([parentFrame]);
 }
