@@ -39,6 +39,41 @@
     font-size: 16px;
   }
 
+  .button-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .selector-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .selector-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #1e293b;
+  }
+
+  .selector-btn.active {
+    background: #18a0fb;
+    color: #ffffff;
+    border-color: #18a0fb;
+  }
+
+  .selector-btn:focus {
+    outline: none;
+  }
+
   .scale {
     display: flex;
     flex-direction: column;
@@ -74,7 +109,11 @@
 </style>
 
 <h2>Color Scale</h2>
-<div style="display: flex; gap: 8px; align-items: center;">
+<div class="button-selector">
+  <button class="selector-btn active" data-system="tailwind">Tailwind (50-950)</button>
+  <button class="selector-btn" data-system="material">Material (50-900)</button>
+</div>
+<div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
   <input id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" style="margin: 0; flex: 1;" />
   <button id="generate">Generate</button>
   <button id="sortToggle" class="icon-btn" style="padding: 6px;">
@@ -87,6 +126,7 @@
 <script>
   let currentScale = [];
   let sortAscending = true;
+  let selectedSystem = 'tailwind';
 
   function renderScale() {
     const container = document.getElementById('scale');
@@ -111,16 +151,29 @@
     }
   }
 
+  function triggerGeneration() {
+    let color = document.getElementById('colorInput').value.trim();
+    if (!color.startsWith('#')) color = '#' + color;
+    parent.postMessage({ pluginMessage: { type: 'generate-scale', color, system: selectedSystem } }, '*');
+  }
+
   document.getElementById('sortToggle').onclick = () => {
     if (currentScale.length === 0) return;
     sortAscending = !sortAscending;
     renderScale();
   };
 
+  document.querySelectorAll('.selector-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      selectedSystem = e.target.dataset.system;
+      triggerGeneration();
+    }
+  });
+
   document.getElementById('generate').onclick = () => {
-    let color = document.getElementById('colorInput').value.trim();
-    if (!color.startsWith('#')) color = '#' + color;
-    parent.postMessage({ pluginMessage: { type: 'generate-scale', color } }, '*');
+    triggerGeneration();
   }
 
   window.onmessage = (event) => {
