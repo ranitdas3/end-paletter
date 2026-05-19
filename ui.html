@@ -655,8 +655,6 @@
   let selectedSystem = "tailwind";
   let activeView = "generate";
   let savedPalettes = [];
-
-  const STORAGE_KEY = "end-palette-library";
   const explorePresets = [
     { name: "Skyline", color: "#3B82F6", system: "tailwind", subtitle: "Clean app blue" },
     { name: "Rose Studio", color: "#D6407D", system: "radix", subtitle: "Radix-flavored pink" },
@@ -825,24 +823,6 @@
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
-  function readLibrary() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      savedPalettes = raw ? JSON.parse(raw) : [];
-    } catch (error) {
-      savedPalettes = [];
-    }
-  }
-
-  function persistLibrary() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPalettes));
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
   function renderLibrary() {
     if (savedPalettes.length === 0) {
       libraryList.innerHTML = `
@@ -932,7 +912,7 @@
     savedPalettes = [paletteEntry, ...savedPalettes.filter((entry) => !(entry.color === paletteEntry.color && entry.system === paletteEntry.system))];
     renderLibrary();
     setActiveView("library");
-    persistLibrary();
+    parent.postMessage({ pluginMessage: { type: "save-library-entry", entry: paletteEntry } }, "*");
   }
 
   function setMenuOpen(isOpen) {
@@ -1018,8 +998,12 @@
     if (msg.type === "scale-result") {
       currentScale = msg.scale;
       renderScale();
-      renderLibrary();
       renderExplore();
+    }
+
+    if (msg.type === "library-data") {
+      savedPalettes = Array.isArray(msg.palettes) ? msg.palettes : [];
+      renderLibrary();
     }
   };
 
@@ -1040,7 +1024,7 @@
     if (deleteId) {
       savedPalettes = savedPalettes.filter((entry) => entry.id !== deleteId);
       renderLibrary();
-      persistLibrary();
+      parent.postMessage({ pluginMessage: { type: "delete-library-entry", id: deleteId } }, "*");
     }
   });
 
@@ -1055,11 +1039,11 @@
     loadPalette(color, system);
   });
 
-  readLibrary();
   setActiveView(activeView);
   setSelectedSystem(selectedSystem);
   setMenuOpen(false);
   renderLibrary();
   renderExplore();
+  parent.postMessage({ pluginMessage: { type: "request-library" } }, "*");
   triggerGeneration();
 </script>

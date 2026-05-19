@@ -1,6 +1,24 @@
 figma.showUI(__html__, { width: 400, height: 600 });
 
-figma.ui.onmessage = async (msg: { type: string, color: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' }) => {
+type PaletteSystem = 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix';
+
+type PaletteEntry = {
+  id: string;
+  color: string;
+  system: PaletteSystem;
+  scale: { stop: number; hex: string }[];
+};
+
+type PluginMessage =
+  | { type: 'generate-scale'; color: string; system: PaletteSystem }
+  | { type: 'insert-palette'; color: string; system: PaletteSystem }
+  | { type: 'request-library' }
+  | { type: 'save-library-entry'; entry: PaletteEntry }
+  | { type: 'delete-library-entry'; id: string };
+
+const LIBRARY_STORAGE_KEY = 'end-palette-library';
+
+figma.ui.onmessage = async (msg: PluginMessage) => {
 
   if (msg.type === 'generate-scale') {
     const scale = generateScale(msg.color, msg.system);
@@ -12,7 +30,38 @@ figma.ui.onmessage = async (msg: { type: string, color: string, system: 'tailwin
     await insertPaletteIntoFigma(scale, msg.system);
   }
 
+  if (msg.type === 'request-library') {
+    const library = await getSavedLibrary();
+    figma.ui.postMessage({ type: 'library-data', palettes: library });
+  }
+
+  if (msg.type === 'save-library-entry') {
+    const library = await getSavedLibrary();
+    const nextLibrary = [msg.entry, ...library.filter((entry) => !(entry.color === msg.entry.color && entry.system === msg.entry.system))];
+    await figma.clientStorage.setAsync(LIBRARY_STORAGE_KEY, nextLibrary);
+    figma.ui.postMessage({ type: 'library-data', palettes: nextLibrary });
+  }
+
+  if (msg.type === 'delete-library-entry') {
+    const library = await getSavedLibrary();
+    const nextLibrary = library.filter((entry) => entry.id !== msg.id);
+    await figma.clientStorage.setAsync(LIBRARY_STORAGE_KEY, nextLibrary);
+    figma.ui.postMessage({ type: 'library-data', palettes: nextLibrary });
+  }
+
 };
+
+void initializeLibrary();
+
+async function initializeLibrary() {
+  const library = await getSavedLibrary();
+  figma.ui.postMessage({ type: 'library-data', palettes: library });
+}
+
+async function getSavedLibrary(): Promise<PaletteEntry[]> {
+  const library = await figma.clientStorage.getAsync(LIBRARY_STORAGE_KEY);
+  return Array.isArray(library) ? library as PaletteEntry[] : [];
+}
 
 // --- Color helpers ---
 
@@ -70,7 +119,7 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-function generateScale(hex: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' = 'tailwind') {
+function generateScale(hex: string, system: PaletteSystem = 'tailwind') {
   const [h, s] = hexToHsl(hex);
 
   let stops: number[];
