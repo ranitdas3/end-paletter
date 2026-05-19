@@ -14,11 +14,11 @@
     --accent: #d6407d;
     --accent-strong: #c22969;
     --accent-contrast: #ffffff;
-    --shadow-panel: 0 10px 25px rgba(17, 17, 26, 0.06);
+    --shadow-panel: 0 8px 20px rgba(17, 17, 26, 0.06);
     --shadow-soft: 0 1px 2px rgba(17, 17, 26, 0.06);
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
     --font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
@@ -51,9 +51,10 @@
   }
 
   .app-shell {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     background:
       radial-gradient(circle at top right, rgba(214, 64, 125, 0.08), transparent 42%),
       linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
@@ -72,9 +73,9 @@
 
   .tab {
     position: relative;
-    padding: 18px 12px 16px;
+    padding: 15px 10px 13px;
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     letter-spacing: -0.01em;
     transition: color 0.16s ease, background-color 0.16s ease;
@@ -105,12 +106,14 @@
 
   .view-stack {
     flex: 1;
-    padding: 22px 18px 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 14px 0;
   }
 
   .view {
     display: none;
-    min-height: calc(100vh - 64px - 86px);
+    min-height: calc(100vh - 54px - 74px);
   }
 
   .view.active {
@@ -122,36 +125,68 @@
     border: 1px solid rgba(231, 231, 233, 0.92);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-panel);
-    padding: 18px;
+    padding: 14px;
   }
 
   .stack-lg {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
   }
 
   .field {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
   .field-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: var(--text-muted);
   }
 
+  .input-shell {
+    position: relative;
+  }
+
+  .input-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    min-height: 28px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(35, 42, 73, 0.12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 248, 250, 0.96) 100%);
+    color: var(--text-strong);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 2px rgba(17, 17, 26, 0.04);
+    transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .input-button:hover {
+    background: var(--bg-subtle);
+    border-color: rgba(35, 42, 73, 0.18);
+  }
+
+  .input-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+  }
+
   .text-input {
     width: 100%;
-    min-height: 52px;
-    padding: 0 16px;
+    min-height: 44px;
+    padding: 0 72px 0 14px;
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
     background: var(--bg-panel);
     color: var(--text-strong);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     letter-spacing: 0.01em;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -166,8 +201,8 @@
 
   .control-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 52px;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 8px;
     align-items: end;
   }
 
@@ -177,13 +212,13 @@
 
   .menu-trigger {
     width: 100%;
-    min-height: 48px;
-    padding: 0 42px 0 16px;
+    min-height: 42px;
+    padding: 0 36px 0 14px;
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
     background: var(--bg-panel);
     color: var(--text-strong);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
     text-align: left;
     box-shadow: var(--shadow-soft);
@@ -204,25 +239,25 @@
   .menu-chevron {
     position: absolute;
     top: 50%;
-    right: 16px;
-    width: 14px;
-    height: 14px;
-    margin-top: -7px;
+    right: 14px;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
     color: #b3b1b9;
     pointer-events: none;
   }
 
   .menu-content {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 6px);
     left: 0;
     right: 0;
     display: none;
-    padding: 6px;
+    padding: 5px;
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid var(--border-soft);
-    border-radius: 14px;
-    box-shadow: 0 18px 40px rgba(17, 17, 26, 0.14);
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(17, 17, 26, 0.14);
     z-index: 3;
   }
 
@@ -233,13 +268,13 @@
 
   .menu-item {
     width: 100%;
-    min-height: 36px;
+    min-height: 32px;
     padding: 0 10px;
     display: flex;
     align-items: center;
-    border-radius: 10px;
+    border-radius: 9px;
     color: var(--text-strong);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     text-align: left;
   }
@@ -254,8 +289,8 @@
   }
 
   .icon-button {
-    min-width: 52px;
-    min-height: 48px;
+    min-width: 44px;
+    min-height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -280,33 +315,33 @@
   .results {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 12px 2px 6px;
+    gap: 12px;
+    padding: 8px 0 2px;
   }
 
   .row {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr) 92px;
-    gap: 14px;
+    grid-template-columns: 40px minmax(0, 1fr) 76px;
+    gap: 10px;
     align-items: center;
   }
 
   .stop-label {
-    font-size: 19px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.03em;
     text-align: right;
   }
 
   .swatch {
-    height: 42px;
-    border-radius: 11px;
+    height: 34px;
+    border-radius: 10px;
     border: 1px solid rgba(17, 17, 26, 0.05);
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), var(--shadow-soft);
   }
 
   .hex-label {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: -0.02em;
     text-transform: lowercase;
@@ -317,22 +352,22 @@
     display: grid;
     place-items: center;
     text-align: center;
-    padding: 44px 18px;
+    padding: 28px 12px;
   }
 
   .placeholder-card {
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid var(--border-soft);
-    border-radius: 24px;
-    padding: 28px 22px;
+    border-radius: 18px;
+    padding: 20px 16px;
     box-shadow: var(--shadow-panel);
   }
 
   .placeholder-title {
     margin: 0 0 10px;
-    font-size: 20px;
+    font-size: 18px;
     letter-spacing: -0.03em;
   }
 
@@ -340,14 +375,14 @@
     margin: 0;
     color: var(--text-muted);
     line-height: 1.5;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .section-stack {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding-bottom: 24px;
+    gap: 12px;
+    padding-bottom: 16px;
   }
 
   .section-header {
@@ -358,14 +393,14 @@
 
   .section-title {
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.04em;
   }
 
   .section-copy {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.45;
     color: var(--text-muted);
   }
@@ -374,23 +409,23 @@
   .explore-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .library-item,
   .explore-card {
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid var(--border-soft);
-    border-radius: 18px;
+    border-radius: 16px;
     box-shadow: var(--shadow-panel);
     overflow: hidden;
   }
 
   .library-item {
-    padding: 14px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .library-top,
@@ -410,25 +445,25 @@
 
   .library-name,
   .explore-name {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
 
   .library-subtitle,
   .explore-subtitle {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
   }
 
   .mini-swatches {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    gap: 5px;
   }
 
   .mini-swatch {
-    height: 28px;
+    height: 22px;
     border-radius: 999px;
     border: 1px solid rgba(17, 17, 26, 0.05);
   }
@@ -440,8 +475,8 @@
   }
 
   .action-pill {
-    min-height: 34px;
-    padding: 0 12px;
+    min-height: 30px;
+    padding: 0 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -449,7 +484,7 @@
     border: 1px solid var(--border-soft);
     background: var(--bg-panel);
     color: var(--text-strong);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
   }
@@ -471,31 +506,34 @@
   }
 
   .explore-card {
-    padding: 16px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
 
   .explore-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0;
-    min-height: 56px;
-    border-radius: 14px;
+    min-height: 42px;
+    border-radius: 12px;
     overflow: hidden;
   }
 
   .explore-strip span {
     display: block;
-    min-height: 56px;
+    min-height: 42px;
   }
 
   .footer {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 170px;
-    gap: 14px;
-    padding: 14px 18px 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 10px 14px 14px;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
     border-top: 1px solid var(--border-soft);
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
@@ -503,8 +541,9 @@
 
   .button-secondary,
   .button-primary {
-    min-height: 54px;
-    font-size: 17px;
+    width: 100%;
+    min-height: 46px;
+    font-size: 15px;
     font-weight: 500;
     letter-spacing: -0.02em;
     border-radius: var(--radius-md);
@@ -514,9 +553,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 12px;
+    gap: 8px;
     color: var(--text-strong);
-    padding: 0 12px;
+    padding: 0 10px;
     border: 1px solid var(--border-soft);
     background: rgba(255, 255, 255, 0.84);
     box-shadow: var(--shadow-soft);
@@ -529,14 +568,25 @@
   }
 
   .button-primary {
-    background: #1f2a56;
+    border: 1px solid #24315f;
+    background: linear-gradient(180deg, #31406f 0%, #22305d 100%);
     color: var(--accent-contrast);
     border-radius: var(--radius-md);
-    box-shadow: 0 8px 18px rgba(31, 42, 86, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      0 1px 2px rgba(17, 17, 26, 0.18),
+      0 8px 18px rgba(31, 42, 86, 0.18);
   }
 
   .button-primary:hover {
-    background: #1a2348;
+    background: linear-gradient(180deg, #37487b 0%, #243462 100%);
+  }
+
+  .button-primary:active {
+    background: linear-gradient(180deg, #22305d 0%, #1d294f 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 1px 1px rgba(17, 17, 26, 0.16);
   }
 
   .button-primary:focus-visible,
@@ -546,13 +596,13 @@
   }
 
   .plus-icon {
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1;
     font-weight: 300;
   }
 
   .footer-label {
-    font-size: 15px;
+    font-size: 13px;
   }
 </style>
 
@@ -568,7 +618,10 @@
       <div class="surface stack-lg">
         <label class="field">
           <span class="field-label">Base color</span>
-          <input class="text-input" id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" />
+          <div class="input-shell">
+            <button id="generateInline" class="input-button" type="button">Generate</button>
+            <input class="text-input" id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" />
+          </div>
         </label>
 
         <div class="control-row">
@@ -637,8 +690,6 @@
   let selectedSystem = "tailwind";
   let activeView = "generate";
   let savedPalettes = [];
-
-  const STORAGE_KEY = "end-palette-library";
   const explorePresets = [
     { name: "Skyline", color: "#3B82F6", system: "tailwind", subtitle: "Clean app blue" },
     { name: "Rose Studio", color: "#D6407D", system: "radix", subtitle: "Radix-flavored pink" },
@@ -649,6 +700,7 @@
   ];
 
   const colorInput = document.getElementById("colorInput");
+  const generateInline = document.getElementById("generateInline");
   const systemMenuTrigger = document.getElementById("systemMenuTrigger");
   const systemMenu = document.getElementById("systemMenu");
   const systemItems = Array.from(document.querySelectorAll(".menu-item"));
@@ -807,24 +859,6 @@
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
-  function readLibrary() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      savedPalettes = raw ? JSON.parse(raw) : [];
-    } catch (error) {
-      savedPalettes = [];
-    }
-  }
-
-  function persistLibrary() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPalettes));
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
   function renderLibrary() {
     if (savedPalettes.length === 0) {
       libraryList.innerHTML = `
@@ -914,7 +948,7 @@
     savedPalettes = [paletteEntry, ...savedPalettes.filter((entry) => !(entry.color === paletteEntry.color && entry.system === paletteEntry.system))];
     renderLibrary();
     setActiveView("library");
-    persistLibrary();
+    parent.postMessage({ pluginMessage: { type: "save-library-entry", entry: paletteEntry } }, "*");
   }
 
   function setMenuOpen(isOpen) {
@@ -985,6 +1019,10 @@
     }
   });
 
+  generateInline.addEventListener("click", () => {
+    triggerGeneration();
+  });
+
   document.getElementById("saveLibrary").addEventListener("click", () => {
     saveCurrentPalette();
   });
@@ -1000,8 +1038,12 @@
     if (msg.type === "scale-result") {
       currentScale = msg.scale;
       renderScale();
-      renderLibrary();
       renderExplore();
+    }
+
+    if (msg.type === "library-data") {
+      savedPalettes = Array.isArray(msg.palettes) ? msg.palettes : [];
+      renderLibrary();
     }
   };
 
@@ -1022,7 +1064,7 @@
     if (deleteId) {
       savedPalettes = savedPalettes.filter((entry) => entry.id !== deleteId);
       renderLibrary();
-      persistLibrary();
+      parent.postMessage({ pluginMessage: { type: "delete-library-entry", id: deleteId } }, "*");
     }
   });
 
@@ -1037,11 +1079,11 @@
     loadPalette(color, system);
   });
 
-  readLibrary();
   setActiveView(activeView);
   setSelectedSystem(selectedSystem);
   setMenuOpen(false);
   renderLibrary();
   renderExplore();
+  parent.postMessage({ pluginMessage: { type: "request-library" } }, "*");
   triggerGeneration();
 </script>
