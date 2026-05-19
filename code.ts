@@ -1,4 +1,4 @@
-figma.showUI(__html__, { width: 320, height: 400 });
+figma.showUI(__html__, { width: 560, height: 960 });
 
 figma.ui.onmessage = async (msg: { type: string, color: string, system: 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' }) => {
 

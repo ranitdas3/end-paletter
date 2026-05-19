@@ -1,222 +1,535 @@
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
-  body {
-    font-family: sans-serif;
-    padding: 16px;
-    width: 280px;
+  :root {
+    --bg-app: #fcfcfd;
+    --bg-panel: #ffffff;
+    --bg-subtle: #f8f8f9;
+    --bg-hover: #f1f1f3;
+    --bg-active: #ececee;
+    --bg-accent: #fdf2f5;
+    --border-soft: #e7e7e9;
+    --border-strong: #d9d9de;
+    --text-strong: #1f1f24;
+    --text-muted: #65636d;
+    --text-subtle: #8b8894;
+    --accent: #d6407d;
+    --accent-strong: #c22969;
+    --accent-contrast: #ffffff;
+    --shadow-panel: 0 10px 25px rgba(17, 17, 26, 0.06);
+    --shadow-soft: 0 1px 2px rgba(17, 17, 26, 0.06);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
-  input {
-    width: 100%;
-    padding: 8px;
-    margin: 8px 0;
+  * {
     box-sizing: border-box;
   }
 
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg-app);
+    color: var(--text-strong);
+    font-family: var(--font-ui);
+  }
+
+  body {
+    width: 100%;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
   button {
-    padding: 8px 16px;
-    background: #18a0fb;
-    color: white;
-    border: none;
+    border: 0;
+    background: none;
     cursor: pointer;
-    border-radius: 4px;
   }
 
-  .icon-btn {
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    color: #333;
-  }
-
-  .icon-btn:hover {
-    background: #e0e0e0;
-  }
-
-  .icon-btn i {
-    font-size: 16px;
-  }
-
-  .button-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .selector-btn,
-  .selector-select {
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #475569;
-    padding: 6px 12px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.15s ease;
-  }
-
-  .selector-btn:hover,
-  .selector-select:hover {
-    background: #f8fafc;
-    border-color: #94a3b8;
-    color: #1e293b;
-  }
-
-  .selector-btn.active,
-  .selector-select.active {
-    background: #18a0fb;
-    color: #ffffff;
-    border-color: #18a0fb;
-  }
-
-  .selector-btn:focus,
-  .selector-select:focus {
-    outline: none;
-  }
-
-  .selector-select {
-    appearance: none;
-    min-width: 110px;
-  }
-
-  .scale {
+  .app-shell {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    margin-top: 16px;
-    gap: 4px;
+    background:
+      radial-gradient(circle at top right, rgba(214, 64, 125, 0.08), transparent 42%),
+      linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(255, 255, 255, 0.88);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .tab {
+    position: relative;
+    padding: 18px 12px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .tab + .tab {
+    border-left: 1px solid var(--border-soft);
+  }
+
+  .tab:hover {
+    color: var(--text-strong);
+    background: rgba(255, 255, 255, 0.65);
+  }
+
+  .tab.active {
+    color: var(--accent-strong);
+  }
+
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .view-stack {
+    flex: 1;
+    padding: 22px 18px 0;
+  }
+
+  .view {
+    display: none;
+    min-height: calc(100vh - 64px - 86px);
+  }
+
+  .view.active {
+    display: block;
+  }
+
+  .surface {
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(231, 231, 233, 0.92);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+    padding: 18px;
+  }
+
+  .stack-lg {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .text-input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-panel);
+    color: var(--text-strong);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .text-input:focus {
+    outline: none;
+    border-color: rgba(214, 64, 125, 0.42);
+    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+  }
+
+  .control-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 52px;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .select-shell {
+    position: relative;
+  }
+
+  .select-control {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 42px 0 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-panel);
+    color: var(--text-strong);
+    font-size: 15px;
+    font-weight: 500;
+    appearance: none;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .select-control:focus {
+    outline: none;
+    border-color: rgba(214, 64, 125, 0.42);
+    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+  }
+
+  .select-chevron {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    width: 14px;
+    height: 14px;
+    margin-top: -7px;
+    color: #b3b1b9;
+    pointer-events: none;
+  }
+
+  .icon-button {
+    min-width: 52px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-panel);
+    color: var(--text-strong);
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+  }
+
+  .icon-button:hover {
+    background: var(--bg-hover);
+    border-color: #c7c7cf;
+  }
+
+  .icon-button:focus-visible {
+    outline: none;
+    border-color: rgba(214, 64, 125, 0.42);
+    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+  }
+
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 12px 2px 6px;
   }
 
   .row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 92px;
+    gap: 14px;
     align-items: center;
-    gap: 8px;
   }
 
   .stop-label {
-    font-size: 11px;
-    width: 30px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
     text-align: right;
-    color: #666;
   }
 
   .swatch {
-    width: 120px;
-    height: 24px;
-    border-radius: 3px;
-    flex-shrink: 0;
+    height: 42px;
+    border-radius: 11px;
+    border: 1px solid rgba(17, 17, 26, 0.05);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), var(--shadow-soft);
   }
 
   .hex-label {
-    font-size: 11px;
-    color: #444;
-    font-family: monospace;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-transform: lowercase;
+  }
+
+  .placeholder {
+    min-height: 100%;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 44px 18px;
+  }
+
+  .placeholder-card {
+    width: 100%;
+    max-width: 320px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 28px 22px;
+    box-shadow: var(--shadow-panel);
+  }
+
+  .placeholder-title {
+    margin: 0 0 10px;
+    font-size: 20px;
+    letter-spacing: -0.03em;
+  }
+
+  .placeholder-copy {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+
+  .footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px;
+    gap: 14px;
+    padding: 14px 18px 18px;
+    border-top: 1px solid var(--border-soft);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+  }
+
+  .button-secondary,
+  .button-primary {
+    min-height: 54px;
+    border-radius: 0;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    color: var(--text-strong);
+    padding: 0 12px;
+    border-radius: var(--radius-md);
+    transition: background-color 0.16s ease;
+  }
+
+  .button-secondary:hover {
+    background: rgba(17, 17, 26, 0.04);
+  }
+
+  .button-primary {
+    background: #1f2a56;
+    color: var(--accent-contrast);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 18px rgba(31, 42, 86, 0.22);
+  }
+
+  .button-primary:hover {
+    background: #1a2348;
+  }
+
+  .button-primary:focus-visible,
+  .button-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+  }
+
+  .plus-icon {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 300;
+  }
+
+  .footer-label {
+    font-size: 15px;
   }
 </style>
 
-<h2>Color Scale</h2>
-<div class="button-selector">
-  <button class="selector-btn active" data-system="tailwind">Tailwind (50-950)</button>
-  <button class="selector-btn" data-system="bootstrap">Bootstrap (100-900)</button>
-  <button class="selector-btn" data-system="radix">Radix UI (1-12)</button>
-  <select id="moreSystems" class="selector-select">
-    <option value="" selected>Others...</option>
-    <option value="material">Material (50-900)</option>
-    <option value="ant">Ant Design (1-10)</option>
-    <option value="carbon">Carbon (10-100)</option>
-  </select>
-</div>
-<div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
-  <input id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" style="margin: 0; flex: 1;" />
-  <button id="sortToggle" class="icon-btn" style="padding: 6px;">
-    <svg id="sortIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 256 256" style="transition: transform 0.2s;"><path d="M136,120v96a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm64,72a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200A8,8,0,0,0,200,192Zm24-32H208V40a8,8,0,0,0-16,0V160H176a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16ZM56,160a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V168A8,8,0,0,0,56,160Zm24-32H64V40a8,8,0,0,0-16,0v88H32a8,8,0,0,0,0,16H80a8,8,0,0,0,0-16Zm72-48H136V40a8,8,0,0,0-16,0V80H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z"></path></svg>
-  </button>
-</div>
-<div style="display: flex; gap: 8px; margin-bottom: 12px;">
-  <button id="generate" style="flex: 1;">Generate</button>
-  <button id="insert" style="flex: 1; background: #0f172a;">Insert Frame</button>
-</div>
+<div class="app-shell">
+  <div class="tabs" role="tablist" aria-label="Palette sections">
+    <button class="tab active" id="tab-generate" data-view="generate" role="tab" aria-selected="true">Generate</button>
+    <button class="tab" id="tab-library" data-view="library" role="tab" aria-selected="false">Library</button>
+    <button class="tab" id="tab-explore" data-view="explore" role="tab" aria-selected="false">Explore</button>
+  </div>
 
-<div class="scale" id="scale"></div>
+  <div class="view-stack">
+    <section class="view active" id="view-generate" data-view-panel="generate" role="tabpanel" aria-labelledby="tab-generate">
+      <div class="surface stack-lg">
+        <label class="field">
+          <span class="field-label">Base color</span>
+          <input class="text-input" id="colorInput" type="text" placeholder="#3B82F6" value="#3B82F6" />
+        </label>
+
+        <div class="control-row">
+          <label class="field">
+            <span class="field-label">Palette system</span>
+            <div class="select-shell">
+              <select id="systemSelect" class="select-control">
+                <option value="tailwind">Tailwind</option>
+                <option value="material">Material</option>
+                <option value="ant">Ant Design</option>
+                <option value="carbon">Carbon</option>
+                <option value="bootstrap">Bootstrap</option>
+                <option value="radix">Radix UI</option>
+              </select>
+              <svg class="select-chevron" viewBox="0 0 10 6" aria-hidden="true">
+                <path d="M1 1L5 5L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </label>
+
+          <button id="sortToggle" class="icon-button" type="button" aria-label="Toggle sort order">
+            <svg id="sortIcon" width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+              <path d="M136,120v96a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm64,72a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200A8,8,0,0,0,200,192Zm24-32H208V40a8,8,0,0,0-16,0V160H176a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16ZM56,160a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V168A8,8,0,0,0,56,160Zm24-32H64V40a8,8,0,0,0-16,0v88H32a8,8,0,0,0,0,16H80a8,8,0,0,0,0-16Zm72-48H136V40a8,8,0,0,0-16,0V80H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="results" id="scale"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-library" data-view-panel="library" role="tabpanel" aria-labelledby="tab-library">
+      <div class="placeholder">
+        <div class="placeholder-card">
+          <h2 class="placeholder-title">Library</h2>
+          <p class="placeholder-copy">A saved-palette area is coming next. This pane is wired into the new three-section shell already.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-explore" data-view-panel="explore" role="tabpanel" aria-labelledby="tab-explore">
+      <div class="placeholder">
+        <div class="placeholder-card">
+          <h2 class="placeholder-title">Explore</h2>
+          <p class="placeholder-copy">Use this space for inspiration, presets, and discovery once we layer in richer browsing behavior.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+    <button class="button-secondary" id="saveLibrary" type="button">
+      <span class="plus-icon" aria-hidden="true">+</span>
+      <span class="footer-label">Save to library</span>
+    </button>
+    <button class="button-primary" id="insert" type="button">Insert frame</button>
+  </div>
+</div>
 
 <script>
   let currentScale = [];
   let sortAscending = true;
-  let selectedSystem = 'tailwind';
+  let selectedSystem = "tailwind";
+  let activeView = "generate";
+
+  const colorInput = document.getElementById("colorInput");
+  const systemSelect = document.getElementById("systemSelect");
+  const scaleContainer = document.getElementById("scale");
+  const sortToggle = document.getElementById("sortToggle");
+  const insertButton = document.getElementById("insert");
+  const tabs = Array.from(document.querySelectorAll(".tab"));
+  const views = Array.from(document.querySelectorAll(".view"));
 
   function renderScale() {
-    const container = document.getElementById('scale');
-    container.innerHTML = '';
+    scaleContainer.innerHTML = "";
 
     const scaleToRender = sortAscending ? currentScale : [...currentScale].reverse();
 
     scaleToRender.forEach(({ stop, hex }) => {
-      const row = document.createElement('div');
-      row.className = 'row';
+      const row = document.createElement("div");
+      row.className = "row";
       row.innerHTML = `
         <span class="stop-label">${stop}</span>
         <div class="swatch" style="background:${hex}"></div>
-        <span class="hex-label">${hex}</span>
+        <span class="hex-label">${hex.toLowerCase()}</span>
       `;
-      container.appendChild(row);
+      scaleContainer.appendChild(row);
     });
 
-    const icon = document.getElementById('sortIcon');
+    const icon = document.getElementById("sortIcon");
     if (icon) {
-      icon.style.transform = sortAscending ? 'scaleY(1)' : 'scaleY(-1)';
+      icon.style.transform = sortAscending ? "scaleY(1)" : "scaleY(-1)";
     }
   }
 
   function triggerGeneration() {
-    let color = document.getElementById('colorInput').value.trim();
-    if (!color.startsWith('#')) color = '#' + color;
-    parent.postMessage({ pluginMessage: { type: 'generate-scale', color, system: selectedSystem } }, '*');
+    let color = colorInput.value.trim();
+    if (!color.startsWith("#")) color = `#${color}`;
+    parent.postMessage({ pluginMessage: { type: "generate-scale", color, system: selectedSystem } }, "*");
   }
 
-  document.getElementById('sortToggle').onclick = () => {
+  function setActiveView(nextView) {
+    activeView = nextView;
+
+    tabs.forEach((tab) => {
+      const isActive = tab.dataset.view === nextView;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+    });
+
+    views.forEach((view) => {
+      view.classList.toggle("active", view.dataset.viewPanel === nextView);
+    });
+
+    insertButton.style.visibility = nextView === "generate" ? "visible" : "hidden";
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      setActiveView(tab.dataset.view);
+    });
+  });
+
+  systemSelect.addEventListener("change", (event) => {
+    selectedSystem = event.target.value;
+    triggerGeneration();
+  });
+
+  sortToggle.addEventListener("click", () => {
     if (currentScale.length === 0) return;
     sortAscending = !sortAscending;
     renderScale();
-  };
-
-  const moreSystems = document.getElementById('moreSystems');
-
-  moreSystems.onchange = (e) => {
-    document.querySelectorAll('.selector-btn').forEach((b) => b.classList.remove('active'));
-    moreSystems.classList.add('active');
-    selectedSystem = e.target.value;
-    triggerGeneration();
-  };
-
-  document.querySelectorAll('.selector-btn').forEach((btn) => {
-    btn.onclick = (e) => {
-      document.querySelectorAll('.selector-btn').forEach((b) => b.classList.remove('active'));
-      e.target.classList.add('active');
-      moreSystems.classList.remove('active');
-      moreSystems.value = '';
-      selectedSystem = e.target.dataset.system;
-      triggerGeneration();
-    };
   });
 
-  document.getElementById('generate').onclick = () => {
-    triggerGeneration();
-  };
+  colorInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      triggerGeneration();
+    }
+  });
 
-  document.getElementById('insert').onclick = () => {
-    let color = document.getElementById('colorInput').value.trim();
-    if (!color.startsWith('#')) color = '#' + color;
-    parent.postMessage({ pluginMessage: { type: 'insert-palette', color, system: selectedSystem } }, '*');
-  };
+  document.getElementById("saveLibrary").addEventListener("click", () => {
+    setActiveView("library");
+  });
+
+  insertButton.addEventListener("click", () => {
+    let color = colorInput.value.trim();
+    if (!color.startsWith("#")) color = `#${color}`;
+    parent.postMessage({ pluginMessage: { type: "insert-palette", color, system: selectedSystem } }, "*");
+  });
 
   window.onmessage = (event) => {
     const msg = event.data.pluginMessage;
-    if (msg.type === 'scale-result') {
+    if (msg.type === "scale-result") {
       currentScale = msg.scale;
       renderScale();
     }
   };
+
+  setActiveView(activeView);
+  triggerGeneration();
 </script>
