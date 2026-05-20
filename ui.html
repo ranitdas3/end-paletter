@@ -199,46 +199,94 @@
     box-shadow: 0 0 0 4px rgba(62, 99, 221, 0.12);
   }
 
-  .button-selector {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    width: 100%;
-    margin-top: 2px;
+  .menu-shell {
+    position: relative;
   }
 
-  .selector-btn {
-    min-height: 32px;
-    padding: 0 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
+  .menu-trigger {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 36px 0 14px;
     border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
     background: var(--bg-panel);
     color: var(--text-strong);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
+    text-align: left;
     box-shadow: var(--shadow-soft);
-    transition: all 0.16s ease;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
   }
 
-  .selector-btn:hover {
+  .menu-trigger:hover {
     background: var(--bg-hover);
-    border-color: var(--border-strong);
   }
 
-  .selector-btn.active {
-    border-color: var(--accent);
+  .menu-trigger:focus-visible,
+  .menu-trigger[data-open="true"] {
+    outline: none;
+    border-color: rgba(62, 99, 221, 0.42);
+    box-shadow: 0 0 0 4px rgba(62, 99, 221, 0.12);
+  }
+
+  .menu-chevron {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: transform 0.16s ease;
+  }
+
+  .menu-trigger[data-open="true"] + .menu-chevron {
+    transform: rotate(180deg);
+  }
+
+  .menu-content {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    display: none;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 28px rgba(17, 17, 26, 0.12);
+    z-index: 3;
+    backdrop-filter: blur(10px);
+  }
+
+  .menu-content.open {
+    display: grid;
+    gap: 2px;
+  }
+
+  .menu-item {
+    width: 100%;
+    min-height: 34px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    color: var(--text-strong);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    transition: background-color 0.12s ease, color 0.12s ease;
+  }
+
+  .menu-item:hover {
+    background: var(--bg-hover);
+  }
+
+  .menu-item.active {
     background: var(--bg-accent);
     color: var(--accent-strong);
     font-weight: 600;
-  }
-
-  .selector-btn:focus-visible {
-    outline: none;
-    border-color: rgba(62, 99, 221, 0.42);
-    box-shadow: 0 0 0 3px rgba(62, 99, 221, 0.12);
   }
 
   .icon-button-small {
@@ -603,7 +651,7 @@
         </label>
 
         <div class="field">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
             <span class="field-label">Palette system</span>
             <button id="sortToggle" class="icon-button-small" type="button" aria-label="Toggle sort order">
               <svg id="sortIcon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true" style="transition: transform 0.16s ease;">
@@ -611,13 +659,19 @@
               </svg>
             </button>
           </div>
-          <div class="button-selector">
-            <button class="selector-btn active" type="button" data-system="tailwind">Tailwind (50-950)</button>
-            <button class="selector-btn" type="button" data-system="material">Material (50-900)</button>
-            <button class="selector-btn" type="button" data-system="ant">Ant Design (1-10)</button>
-            <button class="selector-btn" type="button" data-system="carbon">Carbon (10-100)</button>
-            <button class="selector-btn" type="button" data-system="bootstrap">Bootstrap (100-900)</button>
-            <button class="selector-btn" type="button" data-system="radix">Radix UI (1-12)</button>
+          <div class="menu-shell">
+            <button id="systemMenuTrigger" class="menu-trigger" type="button" aria-haspopup="menu" aria-expanded="false" data-open="false">Tailwind (50-950)</button>
+            <svg class="menu-chevron" viewBox="0 0 10 6" aria-hidden="true">
+              <path d="M1 1L5 5L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div id="systemMenu" class="menu-content" role="menu" aria-label="Palette system">
+              <button class="menu-item active" type="button" role="menuitemradio" aria-checked="true" data-system="tailwind">Tailwind (50-950)</button>
+              <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="material">Material (50-900)</button>
+              <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="ant">Ant Design (1-10)</button>
+              <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="carbon">Carbon (10-100)</button>
+              <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="bootstrap">Bootstrap (100-900)</button>
+              <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="radix">Radix UI (1-12)</button>
+            </div>
           </div>
         </div>
 
@@ -672,7 +726,9 @@
 
   const colorInput = document.getElementById("colorInput");
   const generateInline = document.getElementById("generateInline");
-  const selectorButtons = Array.from(document.querySelectorAll(".selector-btn"));
+  const systemMenuTrigger = document.getElementById("systemMenuTrigger");
+  const systemMenu = document.getElementById("systemMenu");
+  const systemItems = Array.from(document.querySelectorAll(".menu-item"));
   const scaleContainer = document.getElementById("scale");
   const libraryList = document.getElementById("libraryList");
   const exploreGrid = document.getElementById("exploreGrid");
@@ -920,12 +976,22 @@
     parent.postMessage({ pluginMessage: { type: "save-library-entry", entry: paletteEntry } }, "*");
   }
 
+  function setMenuOpen(isOpen) {
+    systemMenu.classList.toggle("open", isOpen);
+    systemMenuTrigger.dataset.open = String(isOpen);
+    systemMenuTrigger.setAttribute("aria-expanded", String(isOpen));
+  }
+
   function setSelectedSystem(nextSystem) {
     selectedSystem = nextSystem;
 
-    selectorButtons.forEach((btn) => {
-      const isActive = btn.dataset.system === nextSystem;
-      btn.classList.toggle("active", isActive);
+    systemItems.forEach((item) => {
+      const isActive = item.dataset.system === nextSystem;
+      item.classList.toggle("active", isActive);
+      item.setAttribute("aria-checked", String(isActive));
+      if (isActive) {
+        systemMenuTrigger.textContent = item.textContent;
+      }
     });
   }
 
@@ -935,11 +1001,31 @@
     });
   });
 
-  selectorButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      setSelectedSystem(btn.dataset.system);
+  systemMenuTrigger.addEventListener("click", () => {
+    const nextState = !systemMenu.classList.contains("open");
+    setMenuOpen(nextState);
+  });
+
+  systemItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      setSelectedSystem(item.dataset.system);
+      setMenuOpen(false);
+      systemMenuTrigger.focus();
       triggerGeneration();
     });
+  });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || !target.closest(".menu-shell")) {
+      setMenuOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setMenuOpen(false);
+    }
   });
 
   colorInput.addEventListener("blur", () => {
@@ -1020,6 +1106,7 @@
 
   setActiveView(activeView);
   setSelectedSystem(selectedSystem);
+  setMenuOpen(false);
   renderLibrary();
   renderExplore();
   parent.postMessage({ pluginMessage: { type: "request-library" } }, "*");
