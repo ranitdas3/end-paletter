@@ -5,14 +5,14 @@
     --bg-subtle: #f8f8f9;
     --bg-hover: #f1f1f3;
     --bg-active: #ececee;
-    --bg-accent: #fdf2f5;
+    --bg-accent: #edf0fe;
     --border-soft: #e7e7e9;
     --border-strong: #d9d9de;
     --text-strong: #1f1f24;
     --text-muted: #65636d;
     --text-subtle: #8b8894;
-    --accent: #d6407d;
-    --accent-strong: #c22969;
+    --accent: #3e63dd;
+    --accent-strong: #3451b2;
     --accent-contrast: #ffffff;
     --shadow-panel: 0 8px 20px rgba(17, 17, 26, 0.06);
     --shadow-soft: 0 1px 2px rgba(17, 17, 26, 0.06);
@@ -56,7 +56,7 @@
     flex-direction: column;
     overflow: hidden;
     background:
-      radial-gradient(circle at top right, rgba(214, 64, 125, 0.08), transparent 42%),
+      radial-gradient(circle at top right, rgba(62, 99, 221, 0.08), transparent 42%),
       linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
   }
 
@@ -175,7 +175,7 @@
 
   .input-button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+    box-shadow: 0 0 0 4px rgba(62, 99, 221, 0.12);
   }
 
   .text-input {
@@ -195,97 +195,75 @@
 
   .text-input:focus {
     outline: none;
-    border-color: rgba(214, 64, 125, 0.42);
-    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+    border-color: rgba(62, 99, 221, 0.42);
+    box-shadow: 0 0 0 4px rgba(62, 99, 221, 0.12);
   }
 
-  .control-row {
+  .button-selector {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 44px;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    align-items: end;
-  }
-
-  .menu-shell {
-    position: relative;
-  }
-
-  .menu-trigger {
     width: 100%;
-    min-height: 42px;
-    padding: 0 36px 0 14px;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--bg-panel);
-    color: var(--text-strong);
-    font-size: 14px;
-    font-weight: 500;
-    text-align: left;
-    box-shadow: var(--shadow-soft);
-    transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+    margin-top: 2px;
   }
 
-  .menu-trigger:hover {
-    background: var(--bg-subtle);
-  }
-
-  .menu-trigger:focus-visible,
-  .menu-trigger[data-open="true"] {
-    outline: none;
-    border-color: rgba(214, 64, 125, 0.42);
-    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
-  }
-
-  .menu-chevron {
-    position: absolute;
-    top: 50%;
-    right: 14px;
-    width: 12px;
-    height: 12px;
-    margin-top: -6px;
-    color: #b3b1b9;
-    pointer-events: none;
-  }
-
-  .menu-content {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    display: none;
-    padding: 5px;
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid var(--border-soft);
-    border-radius: 12px;
-    box-shadow: 0 12px 28px rgba(17, 17, 26, 0.14);
-    z-index: 3;
-  }
-
-  .menu-content.open {
-    display: grid;
-    gap: 2px;
-  }
-
-  .menu-item {
-    width: 100%;
+  .selector-btn {
     min-height: 32px;
     padding: 0 10px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    border-radius: 9px;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--bg-panel);
     color: var(--text-strong);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
-    text-align: left;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.16s ease;
   }
 
-  .menu-item:hover {
+  .selector-btn:hover {
     background: var(--bg-hover);
+    border-color: var(--border-strong);
   }
 
-  .menu-item.active {
+  .selector-btn.active {
+    border-color: var(--accent);
     background: var(--bg-accent);
     color: var(--accent-strong);
+    font-weight: 600;
+  }
+
+  .selector-btn:focus-visible {
+    outline: none;
+    border-color: rgba(62, 99, 221, 0.42);
+    box-shadow: 0 0 0 3px rgba(62, 99, 221, 0.12);
+  }
+
+  .icon-button-small {
+    min-width: 28px;
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.16s ease;
+  }
+
+  .icon-button-small:hover {
+    background: var(--bg-hover);
+    color: var(--text-strong);
+    border-color: var(--border-soft);
+  }
+
+  .icon-button-small:focus-visible {
+    outline: none;
+    border-color: rgba(62, 99, 221, 0.42);
+    box-shadow: 0 0 0 3px rgba(62, 99, 221, 0.12);
   }
 
   .icon-button {
@@ -308,8 +286,8 @@
 
   .icon-button:focus-visible {
     outline: none;
-    border-color: rgba(214, 64, 125, 0.42);
-    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+    border-color: rgba(62, 99, 221, 0.42);
+    box-shadow: 0 0 0 4px rgba(62, 99, 221, 0.12);
   }
 
   .results {
@@ -495,14 +473,14 @@
   }
 
   .action-pill.accent {
-    border-color: rgba(214, 64, 125, 0.24);
+    border-color: rgba(62, 99, 221, 0.24);
     background: var(--bg-accent);
     color: var(--accent-strong);
   }
 
   .action-pill.accent:hover {
-    border-color: rgba(214, 64, 125, 0.36);
-    background: #fbe7ef;
+    border-color: rgba(62, 99, 221, 0.36);
+    background: #edf0fe;
   }
 
   .explore-card {
@@ -552,7 +530,7 @@
   .button-secondary {
     display: inline-flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 8px;
     color: var(--text-strong);
     padding: 0 10px;
@@ -592,7 +570,7 @@
   .button-primary:focus-visible,
   .button-secondary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(214, 64, 125, 0.12);
+    box-shadow: 0 0 0 4px rgba(62, 99, 221, 0.12);
   }
 
   .plus-icon {
@@ -624,30 +602,23 @@
           </div>
         </label>
 
-        <div class="control-row">
-          <label class="field">
+        <div class="field">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
             <span class="field-label">Palette system</span>
-            <div class="menu-shell">
-              <button id="systemMenuTrigger" class="menu-trigger" type="button" aria-haspopup="menu" aria-expanded="false" data-open="false">Tailwind</button>
-              <svg class="menu-chevron" viewBox="0 0 10 6" aria-hidden="true">
-                <path d="M1 1L5 5L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            <button id="sortToggle" class="icon-button-small" type="button" aria-label="Toggle sort order">
+              <svg id="sortIcon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true" style="transition: transform 0.16s ease;">
+                <path d="M3.78233 2.21713C3.70732 2.14212 3.60557 2.09998 3.49949 2.09998C3.3934 2.09998 3.29166 2.14212 3.21664 2.21713L1.21664 4.21713C1.06044 4.37334 1.06044 4.62661 1.21664 4.78282C1.37285 4.93903 1.62612 4.93903 1.78233 4.78282L3.09949 3.46566L3.09949 11.5343L1.78233 10.2171C1.62612 10.0609 1.37285 10.0609 1.21664 10.2171C1.06043 10.3733 1.06043 10.6266 1.21664 10.7828L3.21664 12.7828C3.29166 12.8578 3.3934 12.9 3.49949 12.9C3.60557 12.9 3.70731 12.8578 3.78233 12.7828L5.78233 10.7828C5.93854 10.6266 5.93854 10.3733 5.78233 10.2171C5.62612 10.0609 5.37285 10.0609 5.21664 10.2171L3.89949 11.5343L3.89949 3.46566L5.21664 4.78282C5.37285 4.93903 5.62612 4.93903 5.78233 4.78282C5.93854 4.62661 5.93854 4.37334 5.78233 4.21713L3.78233 2.21713ZM8.49998 3.99997C8.22383 3.99997 7.99998 4.22382 7.99998 4.49997C7.99998 4.77611 8.22383 4.99997 8.49998 4.99997H14.5C14.7761 4.99997 15 4.77611 15 4.49997C15 4.22382 14.7761 3.99997 14.5 3.99997H8.49998ZM7.99998 7.49997C7.99998 7.22382 8.22383 6.99997 8.49998 6.99997H14.5C14.7761 6.99997 15 7.22382 15 7.49997C15 7.77611 14.7761 7.99997 14.5 7.99997H8.49998C8.22383 7.99997 7.99998 7.77611 7.99998 7.49997ZM8.49998 9.99997C8.22383 9.99997 7.99998 10.2238 7.99998 10.5C7.99998 10.7761 8.22383 11 8.49998 11H14.5C14.7761 11 15 10.7761 15 10.5C15 10.2238 14.7761 9.99997 14.5 9.99997H8.49998Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
               </svg>
-              <div id="systemMenu" class="menu-content" role="menu" aria-label="Palette system">
-                <button class="menu-item active" type="button" role="menuitemradio" aria-checked="true" data-system="tailwind">Tailwind</button>
-                <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="material">Material</button>
-                <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="ant">Ant Design</button>
-                <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="carbon">Carbon</button>
-                <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="bootstrap">Bootstrap</button>
-                <button class="menu-item" type="button" role="menuitemradio" aria-checked="false" data-system="radix">Radix UI</button>
-              </div>
-            </div>
-          </label>
-
-          <button id="sortToggle" class="icon-button" type="button" aria-label="Toggle sort order">
-            <svg id="sortIcon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-              <path d="M3.78233 2.21713C3.70732 2.14212 3.60557 2.09998 3.49949 2.09998C3.3934 2.09998 3.29166 2.14212 3.21664 2.21713L1.21664 4.21713C1.06044 4.37334 1.06044 4.62661 1.21664 4.78282C1.37285 4.93903 1.62612 4.93903 1.78233 4.78282L3.09949 3.46566L3.09949 11.5343L1.78233 10.2171C1.62612 10.0609 1.37285 10.0609 1.21664 10.2171C1.06043 10.3733 1.06043 10.6266 1.21664 10.7828L3.21664 12.7828C3.29166 12.8578 3.3934 12.9 3.49949 12.9C3.60557 12.9 3.70731 12.8578 3.78233 12.7828L5.78233 10.7828C5.93854 10.6266 5.93854 10.3733 5.78233 10.2171C5.62612 10.0609 5.37285 10.0609 5.21664 10.2171L3.89949 11.5343L3.89949 3.46566L5.21664 4.78282C5.37285 4.93903 5.62612 4.93903 5.78233 4.78282C5.93854 4.62661 5.93854 4.37334 5.78233 4.21713L3.78233 2.21713ZM8.49998 3.99997C8.22383 3.99997 7.99998 4.22382 7.99998 4.49997C7.99998 4.77611 8.22383 4.99997 8.49998 4.99997H14.5C14.7761 4.99997 15 4.77611 15 4.49997C15 4.22382 14.7761 3.99997 14.5 3.99997H8.49998ZM7.99998 7.49997C7.99998 7.22382 8.22383 6.99997 8.49998 6.99997H14.5C14.7761 6.99997 15 7.22382 15 7.49997C15 7.77611 14.7761 7.99997 14.5 7.99997H8.49998C8.22383 7.99997 7.99998 7.77611 7.99998 7.49997ZM8.49998 9.99997C8.22383 9.99997 7.99998 10.2238 7.99998 10.5C7.99998 10.7761 8.22383 11 8.49998 11H14.5C14.7761 11 15 10.7761 15 10.5C15 10.2238 14.7761 9.99997 14.5 9.99997H8.49998Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
-            </svg>
-          </button>
+            </button>
+          </div>
+          <div class="button-selector">
+            <button class="selector-btn active" type="button" data-system="tailwind">Tailwind (50-950)</button>
+            <button class="selector-btn" type="button" data-system="material">Material (50-900)</button>
+            <button class="selector-btn" type="button" data-system="ant">Ant Design (1-10)</button>
+            <button class="selector-btn" type="button" data-system="carbon">Carbon (10-100)</button>
+            <button class="selector-btn" type="button" data-system="bootstrap">Bootstrap (100-900)</button>
+            <button class="selector-btn" type="button" data-system="radix">Radix UI (1-12)</button>
+          </div>
         </div>
 
         <div class="results" id="scale"></div>
@@ -701,9 +672,7 @@
 
   const colorInput = document.getElementById("colorInput");
   const generateInline = document.getElementById("generateInline");
-  const systemMenuTrigger = document.getElementById("systemMenuTrigger");
-  const systemMenu = document.getElementById("systemMenu");
-  const systemItems = Array.from(document.querySelectorAll(".menu-item"));
+  const selectorButtons = Array.from(document.querySelectorAll(".selector-btn"));
   const scaleContainer = document.getElementById("scale");
   const libraryList = document.getElementById("libraryList");
   const exploreGrid = document.getElementById("exploreGrid");
@@ -951,22 +920,12 @@
     parent.postMessage({ pluginMessage: { type: "save-library-entry", entry: paletteEntry } }, "*");
   }
 
-  function setMenuOpen(isOpen) {
-    systemMenu.classList.toggle("open", isOpen);
-    systemMenuTrigger.dataset.open = String(isOpen);
-    systemMenuTrigger.setAttribute("aria-expanded", String(isOpen));
-  }
-
   function setSelectedSystem(nextSystem) {
     selectedSystem = nextSystem;
 
-    systemItems.forEach((item) => {
-      const isActive = item.dataset.system === nextSystem;
-      item.classList.toggle("active", isActive);
-      item.setAttribute("aria-checked", String(isActive));
-      if (isActive) {
-        systemMenuTrigger.textContent = item.textContent;
-      }
+    selectorButtons.forEach((btn) => {
+      const isActive = btn.dataset.system === nextSystem;
+      btn.classList.toggle("active", isActive);
     });
   }
 
@@ -976,31 +935,11 @@
     });
   });
 
-  systemMenuTrigger.addEventListener("click", () => {
-    const nextState = !systemMenu.classList.contains("open");
-    setMenuOpen(nextState);
-  });
-
-  systemItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      setSelectedSystem(item.dataset.system);
-      setMenuOpen(false);
-      systemMenuTrigger.focus();
+  selectorButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setSelectedSystem(btn.dataset.system);
       triggerGeneration();
     });
-  });
-
-  document.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element) || !target.closest(".menu-shell")) {
-      setMenuOpen(false);
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      setMenuOpen(false);
-    }
   });
 
   colorInput.addEventListener("blur", () => {
@@ -1081,7 +1020,6 @@
 
   setActiveView(activeView);
   setSelectedSystem(selectedSystem);
-  setMenuOpen(false);
   renderLibrary();
   renderExplore();
   parent.postMessage({ pluginMessage: { type: "request-library" } }, "*");
