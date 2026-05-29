@@ -765,6 +765,7 @@
   let selectedSystem = "tailwind";
   let activeView = "generate";
   let savedPalettes = [];
+  let exactActivePalette = null;
   function makeExplorePalettes(rawPalettes, system, stops) {
     return rawPalettes.map((palette) => ({
       ...palette,
@@ -890,19 +891,65 @@
     { name: "magenta", scale: ["#fff0f7","#ffd6e8","#ffafd2","#ff7eb6","#ee5396","#d02670","#9f1853","#740937","#510224","#2a0a18"] },
     { name: "purple", scale: ["#f6f2ff","#e8daff","#d4bbff","#be95ff","#a56eff","#8a3ffc","#6929c4","#491d8b","#31135e","#1c0f30"] }
   ];
+  const githubExplorePalettes = [
+    { name: "neutral", scale: ["#ffffff","#f6f8fa","#eff2f5","#e6eaef","#e0e6eb","#dae0e7","#d1d9e0","#c8d1da","#818b98","#59636e","#454c54","#393f46","#25292e","#1f2328"] },
+    { name: "blue", scale: ["#ddf4ff","#b6e3ff","#80ccff","#54aeff","#218bff","#0969da","#0550ae","#033d8b","#0a3069","#002155"] },
+    { name: "green", scale: ["#dafbe1","#aceebb","#6fdd8b","#4ac26b","#2da44e","#1a7f37","#116329","#044f1e","#003d16","#002d11"] },
+    { name: "yellow", scale: ["#fff8c5","#fae17d","#eac54f","#d4a72c","#bf8700","#9a6700","#7d4e00","#633c01","#4d2d00","#3b2300"] },
+    { name: "orange", scale: ["#fff1e5","#ffd8b5","#ffb77c","#fb8f44","#e16f24","#bc4c00","#953800","#762c00","#5c2200","#471700"] },
+    { name: "red", scale: ["#ffebe9","#ffcecb","#ffaba8","#ff8182","#fa4549","#cf222e","#a40e26","#82071e","#660018","#4c0014"] },
+    { name: "purple", scale: ["#fbefff","#ecd8ff","#d8b9ff","#c297ff","#a475f9","#8250df","#6639ba","#512a97","#3e1f79","#2e1461"] },
+    { name: "pink", scale: ["#ffeff7","#ffd3eb","#ffadda","#ff80c8","#e85aad","#bf3989","#99286e","#772057","#611347","#4d0336"] },
+    { name: "coral", scale: ["#fff0eb","#ffd6cc","#ffb4a1","#fd8c73","#ec6547","#c4432b","#9e2f1c","#801f0f","#691105","#510901"] }
+  ];
+  const polarisExplorePalettes = [
+    { name: "gray", scale: ["#ffffff","#fdfdfd","#fafafa","#f7f7f7","#f3f3f3","#f1f1f1","#ebebeb","#e3e3e3","#d4d4d4","#cccccc","#b5b5b5","#8a8a8a","#616161","#4a4a4a","#303030","#1a1a1a"] },
+    { name: "azure", scale: ["#fbfdff","#f2f9ff","#eaf4ff","#e0f0ff","#d5ebff","#cae6ff","#c0e1ff","#a8d8ff","#91d0ff","#51c0ff","#0094d5","#007cb4","#00679b","#00527c","#003a5a","#002133"] },
+    { name: "blue", scale: ["#fcfdff","#f6f8ff","#f0f2ff","#eaedff","#e2e7ff","#dbe1ff","#d5dcff","#c5d0ff","#bac7ff","#97adff","#4188ff","#0071e9","#005bd3","#004299","#002e6a","#001633"] },
+    { name: "green", scale: ["#fafffb","#e6feea","#cdfed4","#affebf","#92fcac","#6ef799","#52f490","#2ced83","#11df7b","#18bf79","#0d9c6a","#047b5d","#035e4c","#014b40","#073630","#022622"] },
+    { name: "lime", scale: ["#fafffa","#e4ffe5","#d0ffd1","#bbfebe","#9dfea0","#77fe7a","#38fe3e","#28f22f","#25e82b","#20cf27","#18a81d","#118715","#0c710f","#0b550d","#033d05","#032104"] },
+    { name: "magenta", scale: ["#fffdff","#fff5ff","#fdeffd","#fee7fe","#fcdffc","#fbd7fb","#fbcffb","#f9bef9","#f8b1f8","#f68df6","#e156e1","#c530c5","#9f269f","#791a79","#561056","#340634"] },
+    { name: "orange", scale: ["#fffdfa","#fff7ee","#fff1e3","#ffebd5","#ffe4c6","#ffddb6","#ffd6a4","#ffc879","#ffb800","#e5a500","#b28400","#956f00","#7c5800","#5e4200","#412d00","#251a00"] },
+    { name: "purple", scale: ["#fdfdff","#f8f7ff","#f3f1ff","#efeaff","#e9e5ff","#e4deff","#dfd9ff","#d4ccff","#c7bcff","#aa95ff","#9474ff","#8051ff","#7126ff","#5700d1","#3b0093","#1c004f"] },
+    { name: "red", scale: ["#fffafb","#fff6f8","#ffecef","#fee8eb","#fee1e6","#fed9df","#fed1d7","#fec1c7","#fdacb1","#f78086","#e22c38","#c70a24","#a30a24","#8e0b21","#5f0716","#2f040b"] },
+    { name: "rose", scale: ["#fffdfd","#fff6f8","#ffeff3","#ffe8ee","#ffe1e8","#ffd9e3","#fed1dd","#fec1d2","#feb5ca","#fe8eb1","#fd4b92","#e30c76","#b9075f","#8d0448","#640231","#3e011c"] },
+    { name: "teal", scale: ["#f8fffe","#e8fcfa","#d7faf7","#c3f7f2","#aaf6ef","#89f5ec","#70f0e5","#5ae6db","#2ce0d4","#1ec7bc","#00a198","#12837c","#0c6a64","#0c534f","#033c39","#062c29"] },
+    { name: "yellow", scale: ["#fffdf6","#fff8db","#fff4bf","#ffef9d","#ffeb78","#ffe600","#f7df00","#ead300","#e1cb00","#c5b200","#998a00","#827500","#695f00","#4f4700","#332e00","#1f1c00"] }
+  ];
+  const atlassianExplorePalettes = [
+    { name: "neutral", scale: ["#ffffff","#f8f8f8","#f0f1f2","#dddee1","#b7b9be","#8c8f97","#7d818a","#6b6e76","#505258","#3b3d42","#292a2e","#1e1f21"] },
+    { name: "lime", scale: ["#efffd6","#d3f1a7","#bde97c","#b3df72","#94c748","#82b536","#6a9a23","#5b7f24","#4c6b1f","#3f5224","#37471f","#28311b"] },
+    { name: "red", scale: ["#ffeceb","#ffd5d2","#ffb8b2","#fd9891","#f87168","#f15b50","#e2483d","#c9372c","#ae2e24","#872821","#5d1f1a","#42221f"] },
+    { name: "orange", scale: ["#fff5db","#fce4a6","#fbd779","#fbc828","#fca700","#f68909","#e06c00","#bd5b00","#9e4c00","#7a3b00","#693200","#3a2c1f"] },
+    { name: "yellow", scale: ["#fef7c8","#f5e989","#efdd4e","#eed12b","#ddb30e","#cf9f02","#b38600","#946f00","#7f5f01","#614a05","#533f04","#332e1b"] },
+    { name: "green", scale: ["#dcfff1","#baf3db","#97edc9","#7ee2b8","#4bce97","#2abb7f","#22a06b","#1f845a","#216e4e","#19573d","#164b35","#1c3329"] },
+    { name: "teal", scale: ["#e7f9ff","#c6edfb","#b1e4f7","#9dd9ee","#6cc3e0","#42b2d7","#2898bd","#227d9b","#206a83","#1a5265","#164555","#1e3137"] },
+    { name: "blue", scale: ["#e9f2fe","#cfe1fd","#adcbfb","#8fb8f6","#669df1","#4688ec","#357de8","#1868db","#1558bc","#144794","#123263","#1c2b42"] },
+    { name: "purple", scale: ["#f8eefe","#eed7fc","#e3bdfa","#d8a0f7","#c97cf4","#bf63f3","#af59e1","#964ac0","#803fa5","#673286","#48245d","#35243f"] },
+    { name: "magenta", scale: ["#ffecf8","#fdd0ec","#fcb6e1","#f797d2","#e774bb","#da62ac","#cd519d","#ae4787","#943d73","#77325b","#50253f","#3d2232"] }
+  ];
   const radixExplorePalettesWithStops = makeExplorePalettes(radixExplorePalettes, "radix", [1,2,3,4,5,6,7,8,9,10,11,12]);
   const materialExplorePalettesWithStops = makeExplorePalettes(materialExplorePalettes, "material", [50,100,200,300,400,500,600,700,800,900]);
   const bootstrapExplorePalettesWithStops = makeExplorePalettes(bootstrapExplorePalettes, "bootstrap", [100,200,300,400,500,600,700,800,900]);
   const tailwindExplorePalettesWithStops = makeExplorePalettes(tailwindExplorePalettes, "tailwind", [50,100,200,300,400,500,600,700,800,900,950]);
   const antExplorePalettesWithStops = makeExplorePalettes(antExplorePalettes, "ant", [1,2,3,4,5,6,7,8,9,10]);
   const carbonExplorePalettesWithStops = makeExplorePalettes(carbonExplorePalettes, "carbon", [10,20,30,40,50,60,70,80,90,100]);
+  const githubExplorePalettesWithStops = makeExplorePalettes(githubExplorePalettes, "github", [0,1,2,3,4,5,6,7,8,9,10,11,12,13].slice(0, githubExplorePalettes[0].scale.length));
+  const polarisExplorePalettesWithStops = makeExplorePalettes(polarisExplorePalettes, "shopify", [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+  const atlassianExplorePalettesWithStops = [
+    { ...atlassianExplorePalettes[0], system: "atlassian", scale: atlassianExplorePalettes[0].scale.map((hex, index) => ({ stop: [0,100,200,300,400,500,600,700,800,900,1000,1100][index], hex })) },
+    ...atlassianExplorePalettes.slice(1).map((palette) => ({ ...palette, system: "atlassian", scale: palette.scale.map((hex, index) => ({ stop: [100,200,250,300,400,500,600,700,800,850,900,1000][index], hex })) }))
+  ];
   const explorePaletteSystems = [
     { id: "radix", title: "Radix UI", subtitle: `${radixExplorePalettesWithStops.length} official palettes`, palettes: radixExplorePalettesWithStops },
     { id: "material", title: "Material", subtitle: `${materialExplorePalettesWithStops.length} official palettes`, palettes: materialExplorePalettesWithStops },
     { id: "bootstrap", title: "Bootstrap", subtitle: `${bootstrapExplorePalettesWithStops.length} official palettes`, palettes: bootstrapExplorePalettesWithStops },
     { id: "tailwind", title: "Tailwind", subtitle: `${tailwindExplorePalettesWithStops.length} official palettes`, palettes: tailwindExplorePalettesWithStops },
     { id: "ant", title: "Ant Design", subtitle: `${antExplorePalettesWithStops.length} official palettes`, palettes: antExplorePalettesWithStops },
-    { id: "carbon", title: "Carbon Design", subtitle: `${carbonExplorePalettesWithStops.length} official palettes`, palettes: carbonExplorePalettesWithStops }
+    { id: "carbon", title: "Carbon Design", subtitle: `${carbonExplorePalettesWithStops.length} official palettes`, palettes: carbonExplorePalettesWithStops },
+    { id: "github", title: "GitHub", subtitle: `${githubExplorePalettesWithStops.length} official palettes`, palettes: githubExplorePalettesWithStops },
+    { id: "shopify", title: "Shopify Polaris", subtitle: `${polarisExplorePalettesWithStops.length} official palettes`, palettes: polarisExplorePalettesWithStops },
+    { id: "atlassian", title: "Atlassian", subtitle: `${atlassianExplorePalettesWithStops.length} official palettes`, palettes: atlassianExplorePalettesWithStops }
   ];
 
   const colorInput = document.getElementById("colorInput");
@@ -919,6 +966,10 @@
   const insertButton = document.getElementById("insert");
   const tabs = Array.from(document.querySelectorAll(".tab"));
   const views = Array.from(document.querySelectorAll(".view"));
+
+  function supportsGeneratedSystem(system) {
+    return ["tailwind", "material", "ant", "carbon", "bootstrap", "radix"].includes(system);
+  }
 
   function renderScale() {
     scaleContainer.innerHTML = "";
@@ -1042,6 +1093,7 @@
   }
 
   function triggerGeneration() {
+    exactActivePalette = null;
     let color = colorInput.value.trim();
     if (!color.startsWith("#")) color = `#${color}`;
     parent.postMessage({ pluginMessage: { type: "generate-scale", color, system: selectedSystem } }, "*");
@@ -1168,9 +1220,18 @@
   }
 
   function loadExactPalette(palette) {
+    exactActivePalette = {
+      name: palette.name || palette.color,
+      system: palette.system,
+      scale: palette.scale.map((item) => ({ ...item }))
+    };
     currentScale = palette.scale.map((item) => ({ ...item }));
     colorInput.value = palette.scale[Math.min(8, palette.scale.length - 1)].hex.toUpperCase();
-    setSelectedSystem(palette.system);
+    if (supportsGeneratedSystem(palette.system)) {
+      setSelectedSystem(palette.system);
+    } else {
+      selectedSystem = palette.system;
+    }
     setActiveView("generate");
     renderScale();
   }
@@ -1187,6 +1248,7 @@
   }
 
   function loadPalette(color, system) {
+    exactActivePalette = null;
     colorInput.value = color.toUpperCase();
     setSelectedSystem(system);
     setActiveView("generate");
@@ -1206,7 +1268,7 @@
     const paletteEntry = {
       id: `${Date.now()}`,
       color: color.toUpperCase(),
-      system: selectedSystem,
+      system: exactActivePalette ? exactActivePalette.system : selectedSystem,
       scale: currentScale.map((item) => ({ ...item }))
     };
 
@@ -1293,6 +1355,10 @@
   });
 
   insertButton.addEventListener("click", () => {
+    if (exactActivePalette) {
+      insertExactPalette(exactActivePalette, capitalizeLabel(exactActivePalette.system));
+      return;
+    }
     insertPalette(colorInput.value, selectedSystem);
   });
 
@@ -1320,7 +1386,11 @@
     if (loadId) {
       const palette = savedPalettes.find((entry) => entry.id === loadId);
       if (palette) {
-        loadPalette(palette.color, palette.system);
+        if (supportsGeneratedSystem(palette.system)) {
+          loadPalette(palette.color, palette.system);
+        } else {
+          loadExactPalette(palette);
+        }
       }
       return;
     }
@@ -1329,7 +1399,11 @@
     if (insertId) {
       const palette = savedPalettes.find((entry) => entry.id === insertId);
       if (palette) {
-        insertPalette(palette.color, palette.system);
+        if (supportsGeneratedSystem(palette.system)) {
+          insertPalette(palette.color, palette.system);
+        } else {
+          insertExactPalette(palette, capitalizeLabel(palette.system));
+        }
       }
       return;
     }
