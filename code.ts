@@ -1,6 +1,6 @@
 figma.showUI(__html__, { width: 400, height: 600 });
 
-type PaletteSystem = 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix';
+type PaletteSystem = 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' | 'github' | 'shopify' | 'atlassian';
 
 type PaletteEntry = {
   id: string;
@@ -12,6 +12,7 @@ type PaletteEntry = {
 type PluginMessage =
   | { type: 'generate-scale'; color: string; system: PaletteSystem }
   | { type: 'insert-palette'; color: string; system: PaletteSystem }
+  | { type: 'insert-custom-palette'; system: PaletteSystem; scale: { stop: number; hex: string }[]; name?: string }
   | { type: 'request-library' }
   | { type: 'save-library-entry'; entry: PaletteEntry }
   | { type: 'delete-library-entry'; id: string };
@@ -28,6 +29,10 @@ figma.ui.onmessage = async (msg: PluginMessage) => {
   if (msg.type === 'insert-palette') {
     const scale = generateScale(msg.color, msg.system);
     await insertPaletteIntoFigma(scale, msg.system);
+  }
+
+  if (msg.type === 'insert-custom-palette') {
+    await insertPaletteIntoFigma(msg.scale, msg.system, msg.name);
   }
 
   if (msg.type === 'request-library') {
@@ -152,11 +157,11 @@ function generateScale(hex: string, system: PaletteSystem = 'tailwind') {
   }));
 }
 
-async function insertPaletteIntoFigma(scale: { stop: number, hex: string }[], system: string) {
+async function insertPaletteIntoFigma(scale: { stop: number, hex: string }[], system: string, name?: string) {
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
 
   const parentFrame = figma.createFrame();
-  parentFrame.name = `${system.charAt(0).toUpperCase() + system.slice(1)} Palette`;
+  parentFrame.name = name || `${system.charAt(0).toUpperCase() + system.slice(1)} Palette`;
   parentFrame.resize(scale.length * 120 + 20, 160);
   parentFrame.fills = []; // Transparent parent container frame
 

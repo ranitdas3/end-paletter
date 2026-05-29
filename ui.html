@@ -424,15 +424,9 @@
     letter-spacing: -0.04em;
   }
 
-  .section-copy {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--text-muted);
-  }
-
   .library-list,
-  .explore-grid {
+  .explore-grid,
+  .explore-accordion-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -552,18 +546,59 @@
     gap: 10px;
   }
 
-  .explore-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    min-height: 42px;
-    border-radius: 12px;
+  .explore-accordion {
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-panel);
     overflow: hidden;
   }
 
-  .explore-strip span {
-    display: block;
-    min-height: 42px;
+  .explore-accordion summary {
+    list-style: none;
+  }
+
+  .explore-accordion summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .accordion-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .accordion-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .accordion-chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    transition: transform 0.16s ease;
+    flex-shrink: 0;
+  }
+
+  .explore-accordion[open] .accordion-chevron {
+    transform: rotate(180deg);
+  }
+
+  .explore-accordion-content {
+    padding: 0 12px 12px;
+    border-top: 1px solid var(--border-soft);
   }
 
   .footer {
@@ -709,7 +744,6 @@
       <div class="section-stack">
         <div class="section-header">
           <h2 class="section-title">Explore</h2>
-          <p class="section-copy">Jump into a few curated starting points, then refine them in the Generate section.</p>
         </div>
         <div class="explore-grid" id="exploreGrid"></div>
       </div>
@@ -731,13 +765,191 @@
   let selectedSystem = "tailwind";
   let activeView = "generate";
   let savedPalettes = [];
-  const explorePresets = [
-    { name: "Skyline", color: "#3B82F6", system: "tailwind", subtitle: "Clean app blue" },
-    { name: "Rose Studio", color: "#D6407D", system: "radix", subtitle: "Radix-flavored pink" },
-    { name: "Aurora", color: "#0EA5A4", system: "material", subtitle: "Fresh teal ramp" },
-    { name: "Citrus", color: "#F59E0B", system: "bootstrap", subtitle: "Warm signal orange" },
-    { name: "Velvet", color: "#7C3AED", system: "ant", subtitle: "Bold interface purple" },
-    { name: "Forest", color: "#15803D", system: "carbon", subtitle: "Muted product green" }
+  let exactActivePalette = null;
+  function makeExplorePalettes(rawPalettes, system, stops) {
+    return rawPalettes.map((palette) => ({
+      ...palette,
+      system,
+      scale: palette.scale.map((hex, index) => ({ stop: stops[index], hex }))
+    }));
+  }
+  const radixExplorePalettes = [
+    { name: "gray", scale: ["#fcfcfc", "#f9f9f9", "#f0f0f0", "#e8e8e8", "#e0e0e0", "#d9d9d9", "#cecece", "#bbbbbb", "#8d8d8d", "#838383", "#646464", "#202020"] },
+    { name: "mauve", scale: ["#fdfcfd", "#faf9fb", "#f2eff3", "#eae7ec", "#e3dfe6", "#dbd8e0", "#d0cdd7", "#bcbac7", "#8e8c99", "#84828e", "#65636d", "#211f26"] },
+    { name: "slate", scale: ["#fcfcfd", "#f9f9fb", "#f0f0f3", "#e8e8ec", "#e0e1e6", "#d9d9e0", "#cdced6", "#b9bbc6", "#8b8d98", "#80838d", "#60646c", "#1c2024"] },
+    { name: "sage", scale: ["#fbfdfc", "#f7f9f8", "#eef1f0", "#e6e9e8", "#dfe2e0", "#d7dad9", "#cbcfcd", "#b8bcba", "#868e8b", "#7c8481", "#5f6563", "#1a211e"] },
+    { name: "olive", scale: ["#fcfdfc", "#f8faf8", "#eff1ef", "#e7e9e7", "#dfe2df", "#d7dad7", "#cccfcc", "#b9bcb8", "#898e87", "#7f847d", "#60655f", "#1d211c"] },
+    { name: "sand", scale: ["#fdfdfc", "#f9f9f8", "#f1f0ef", "#e9e8e6", "#e2e1de", "#dad9d6", "#cfceca", "#bcbbb5", "#8d8d86", "#82827c", "#63635e", "#21201c"] },
+    { name: "gold", scale: ["#fdfdfc", "#faf9f2", "#f2f0e7", "#eae6db", "#e1dccf", "#d8d0bf", "#cbc0aa", "#b9a88d", "#978365", "#8c7a5e", "#71624b", "#3b352b"] },
+    { name: "bronze", scale: ["#fdfcfc", "#fdf7f5", "#f6edea", "#efe4df", "#e7d9d3", "#dfcdc5", "#d3bcb3", "#c2a499", "#a18072", "#957468", "#7d5e54", "#43302b"] },
+    { name: "brown", scale: ["#fefdfc", "#fcf9f6", "#f6eee7", "#f0e4d9", "#ebdaca", "#e4cdb7", "#dcbc9f", "#cea37e", "#ad7f58", "#a07553", "#815e46", "#3e332e"] },
+    { name: "yellow", scale: ["#fdfdf9", "#fefce9", "#fffab8", "#fff394", "#ffe770", "#f3d768", "#e4c767", "#d5ae39", "#ffe629", "#ffdc00", "#9e6c00", "#473b1f"] },
+    { name: "amber", scale: ["#fefdfb", "#fefbe9", "#fff7c2", "#ffee9c", "#fbe577", "#f3d673", "#e9c162", "#e2a336", "#ffc53d", "#ffba18", "#ab6400", "#4f3422"] },
+    { name: "orange", scale: ["#fefcfb", "#fff7ed", "#ffefd6", "#ffdfb5", "#ffd19a", "#ffc182", "#f5ae73", "#ec9455", "#f76b15", "#ef5f00", "#cc4e00", "#582d1d"] },
+    { name: "tomato", scale: ["#fffcfc", "#fff8f7", "#feebe7", "#ffdcd3", "#ffcdc2", "#fdbdaf", "#f5a898", "#ec8e7b", "#e54d2e", "#dd4425", "#d13415", "#5c271f"] },
+    { name: "red", scale: ["#fffcfc", "#fff7f7", "#feebec", "#ffdbdc", "#ffcdce", "#fdbdbe", "#f4a9aa", "#eb8e90", "#e5484d", "#dc3e42", "#ce2c31", "#641723"] },
+    { name: "ruby", scale: ["#fffcfd", "#fff7f8", "#feeaed", "#ffdce1", "#ffced6", "#f8bfc8", "#efacb8", "#e592a3", "#e54666", "#dc3b5d", "#ca244d", "#64172b"] },
+    { name: "crimson", scale: ["#fffcfd", "#fef7f9", "#ffe9f0", "#fedce7", "#facedd", "#f3bed1", "#eaacc3", "#e093b2", "#e93d82", "#df3478", "#cb1d63", "#621639"] },
+    { name: "pink", scale: ["#fffcfe", "#fef7fb", "#fee9f5", "#fbdcef", "#f6cee7", "#efbfdd", "#e7acd0", "#dd93c2", "#d6409f", "#cf3897", "#c2298a", "#651249"] },
+    { name: "plum", scale: ["#fefcff", "#fdf7fd", "#fbebfb", "#f7def8", "#f2d1f3", "#e9c2ec", "#deade3", "#cf91d8", "#ab4aba", "#a144af", "#953ea3", "#53195d"] },
+    { name: "purple", scale: ["#fefcfe", "#fbf7fe", "#f7edfe", "#f2e2fc", "#ead5f9", "#e0c4f4", "#d1afec", "#be93e4", "#8e4ec6", "#8347b9", "#8145b5", "#402060"] },
+    { name: "violet", scale: ["#fdfcfe", "#faf8ff", "#f4f0fe", "#ebe4ff", "#e1d9ff", "#d4cafe", "#c2b5f5", "#aa99ec", "#6e56cf", "#654dc4", "#6550b9", "#2f265f"] },
+    { name: "iris", scale: ["#fdfdff", "#f8f8ff", "#f0f1fe", "#e6e7ff", "#dadcff", "#cbcdff", "#b8baf8", "#9b9ef0", "#5b5bd6", "#5151cd", "#5753c6", "#272962"] },
+    { name: "indigo", scale: ["#fdfdfe", "#f7f9ff", "#edf2fe", "#e1e9ff", "#d2deff", "#c1d0ff", "#abbdf9", "#8da4ef", "#3e63dd", "#3358d4", "#3a5bc7", "#1f2d5c"] },
+    { name: "blue", scale: ["#fbfdff", "#f4faff", "#e6f4fe", "#d5efff", "#c2e5ff", "#acd8fc", "#8ec8f6", "#5eb1ef", "#0090ff", "#0588f0", "#0d74ce", "#113264"] },
+    { name: "cyan", scale: ["#fafdfe", "#f2fafb", "#def7f9", "#caf1f6", "#b5e9f0", "#9ddde7", "#7dcedc", "#3db9cf", "#00a2c7", "#0797b9", "#107d98", "#0d3c48"] },
+    { name: "teal", scale: ["#fafefd", "#f3fbf9", "#e0f8f3", "#ccf3ea", "#b8eae0", "#a1ded2", "#83cdc1", "#53b9ab", "#12a594", "#0d9b8a", "#008573", "#0d3d38"] },
+    { name: "jade", scale: ["#fbfefd", "#f4fbf7", "#e6f7ed", "#d6f1e3", "#c3e9d7", "#acdec8", "#8bceb6", "#56ba9f", "#29a383", "#26997b", "#208368", "#1d3b31"] },
+    { name: "green", scale: ["#fbfefc", "#f4fbf6", "#e6f6eb", "#d6f1df", "#c4e8d1", "#adddc0", "#8eceaa", "#5bb98b", "#30a46c", "#2b9a66", "#218358", "#193b2d"] },
+    { name: "grass", scale: ["#fbfefb", "#f5fbf5", "#e9f6e9", "#daf1db", "#c9e8ca", "#b2ddb5", "#94ce9a", "#65ba74", "#46a758", "#3e9b4f", "#2a7e3b", "#203c25"] },
+    { name: "lime", scale: ["#fcfdfa", "#f8faf3", "#eef6d6", "#e2f0bd", "#d3e7a6", "#c2da91", "#abc978", "#8db654", "#bdee63", "#b0e64c", "#5c7c2f", "#37401c"] },
+    { name: "mint", scale: ["#f9fefd", "#f2fbf9", "#ddf9f2", "#c8f4e9", "#b3ecde", "#9ce0d0", "#7ecfbd", "#4cbba5", "#86ead4", "#7de0cb", "#027864", "#16433c"] },
+    { name: "sky", scale: ["#f9feff", "#f1fafd", "#e1f6fd", "#d1f0fa", "#bee7f5", "#a9daed", "#8dcae3", "#60b3d7", "#7ce2fe", "#74daf8", "#00749e", "#1d3e56"] }
+  ];
+  const materialExplorePalettes = [
+    { name: "red", scale: ["#ffebee","#ffcdd2","#ef9a9a","#e57373","#ef5350","#f44336","#e53935","#d32f2f","#c62828","#b71c1c"] },
+    { name: "pink", scale: ["#fce4ec","#f8bbd0","#f48fb1","#f06292","#ec407a","#e91e63","#d81b60","#c2185b","#ad1457","#880e4f"] },
+    { name: "purple", scale: ["#f3e5f5","#e1bee7","#ce93d8","#ba68c8","#ab47bc","#9c27b0","#8e24aa","#7b1fa2","#6a1b9a","#4a148c"] },
+    { name: "deepPurple", scale: ["#ede7f6","#d1c4e9","#b39ddb","#9575cd","#7e57c2","#673ab7","#5e35b1","#512da8","#4527a0","#311b92"] },
+    { name: "indigo", scale: ["#e8eaf6","#c5cae9","#9fa8da","#7986cb","#5c6bc0","#3f51b5","#3949ab","#303f9f","#283593","#1a237e"] },
+    { name: "blue", scale: ["#e3f2fd","#bbdefb","#90caf9","#64b5f6","#42a5f5","#2196f3","#1e88e5","#1976d2","#1565c0","#0d47a1"] },
+    { name: "lightBlue", scale: ["#e1f5fe","#b3e5fc","#81d4fa","#4fc3f7","#29b6f6","#03a9f4","#039be5","#0288d1","#0277bd","#01579b"] },
+    { name: "cyan", scale: ["#e0f7fa","#b2ebf2","#80deea","#4dd0e1","#26c6da","#00bcd4","#00acc1","#0097a7","#00838f","#006064"] },
+    { name: "teal", scale: ["#e0f2f1","#b2dfdb","#80cbc4","#4db6ac","#26a69a","#009688","#00897b","#00796b","#00695c","#004d40"] },
+    { name: "green", scale: ["#e8f5e9","#c8e6c9","#a5d6a7","#81c784","#66bb6a","#4caf50","#43a047","#388e3c","#2e7d32","#1b5e20"] },
+    { name: "lightGreen", scale: ["#f1f8e9","#dcedc8","#c5e1a5","#aed581","#9ccc65","#8bc34a","#7cb342","#689f38","#558b2f","#33691e"] },
+    { name: "lime", scale: ["#f9fbe7","#f0f4c3","#e6ee9c","#dce775","#d4e157","#cddc39","#c0ca33","#afb42b","#9e9d24","#827717"] },
+    { name: "yellow", scale: ["#fffde7","#fff9c4","#fff59d","#fff176","#ffee58","#ffeb3b","#fdd835","#fbc02d","#f9a825","#f57f17"] },
+    { name: "amber", scale: ["#fff8e1","#ffecb3","#ffe082","#ffd54f","#ffca28","#ffc107","#ffb300","#ffa000","#ff8f00","#ff6f00"] },
+    { name: "orange", scale: ["#fff3e0","#ffe0b2","#ffcc80","#ffb74d","#ffa726","#ff9800","#fb8c00","#f57c00","#ef6c00","#e65100"] },
+    { name: "deepOrange", scale: ["#fbe9e7","#ffccbc","#ffab91","#ff8a65","#ff7043","#ff5722","#f4511e","#e64a19","#d84315","#bf360c"] },
+    { name: "brown", scale: ["#efebe9","#d7ccc8","#bcaaa4","#a1887f","#8d6e63","#795548","#6d4c41","#5d4037","#4e342e","#3e2723"] },
+    { name: "grey", scale: ["#fafafa","#f5f5f5","#eeeeee","#e0e0e0","#bdbdbd","#9e9e9e","#757575","#616161","#424242","#212121"] },
+    { name: "blueGrey", scale: ["#eceff1","#cfd8dc","#b0bec5","#90a4ae","#78909c","#607d8b","#546e7a","#455a64","#37474f","#263238"] }
+  ];
+  const bootstrapExplorePalettes = [
+    { name: "blue", scale: ["#cfe2ff","#9ec5fe","#6ea8fe","#3d8bfd","#0d6efd","#0a58ca","#084298","#052c65","#031633"] },
+    { name: "indigo", scale: ["#e0cffc","#c29ffa","#a370f7","#8540f5","#6610f2","#520dc2","#3d0a91","#290661","#140330"] },
+    { name: "purple", scale: ["#e2d9f3","#c5b3e6","#a98eda","#8c68cd","#6f42c1","#59359a","#432874","#2c1a4d","#160d27"] },
+    { name: "pink", scale: ["#f7d6e6","#efadce","#e685b5","#de5c9d","#d63384","#ab296a","#801f4f","#561435","#2b0a1a"] },
+    { name: "red", scale: ["#f8d7da","#f1aeb5","#ea868f","#e35d6a","#dc3545","#b02a37","#842029","#58151c","#2c0b0e"] },
+    { name: "orange", scale: ["#ffe5d0","#fecba1","#feb272","#fd9843","#fd7e14","#ca6510","#984c0c","#653208","#331904"] },
+    { name: "yellow", scale: ["#fff3cd","#ffe69c","#ffda6a","#ffcd39","#ffc107","#cc9a06","#997404","#664d03","#332701"] },
+    { name: "green", scale: ["#d1e7dd","#a3cfbb","#75b798","#479f76","#198754","#146c43","#0f5132","#0a3622","#051b11"] },
+    { name: "teal", scale: ["#d2f4ea","#a6e9d5","#79dfc1","#4dd4ac","#20c997","#1aa179","#13795b","#0d503c","#06281e"] },
+    { name: "cyan", scale: ["#cff4fc","#9eeaf9","#6edff6","#3dd5f3","#0dcaf0","#0aa2c0","#087990","#055160","#032830"] },
+    { name: "gray", scale: ["#e2e3e5","#c4c8cb","#a7acb1","#899197","#6c757d","#565e64","#41464b","#2b2f32","#161719"] }
+  ];
+  const tailwindExplorePalettes = [
+    { name: "slate", scale: ["#f8fafc","#f1f5f9","#e2e8f0","#cad5e2","#90a1b9","#62748e","#45556c","#314158","#1d293d","#0f172b","#020618"] },
+    { name: "gray", scale: ["#f9fafb","#f3f4f6","#e5e7eb","#d1d5dc","#99a1af","#6a7282","#4a5565","#364153","#1e2939","#101828","#030712"] },
+    { name: "zinc", scale: ["#fafafa","#f4f4f5","#e4e4e7","#d4d4d8","#9f9fa9","#71717b","#52525c","#3f3f46","#27272a","#18181b","#09090b"] },
+    { name: "neutral", scale: ["#fafafa","#f5f5f5","#e5e5e5","#d4d4d4","#a1a1a1","#737373","#525252","#404040","#262626","#171717","#0a0a0a"] },
+    { name: "stone", scale: ["#fafaf9","#f5f5f4","#e7e5e4","#d6d3d1","#a6a09b","#79716b","#57534d","#44403b","#292524","#1c1917","#0c0a09"] },
+    { name: "red", scale: ["#fef2f2","#ffe2e2","#ffc9c9","#ffa2a2","#ff6467","#fb2c36","#e7000b","#c10007","#9f0712","#82181a","#460809"] },
+    { name: "orange", scale: ["#fff7ed","#ffedd4","#ffd6a7","#ffb86a","#ff8904","#ff6900","#f54900","#ca3500","#9f2d00","#7e2a0c","#441306"] },
+    { name: "amber", scale: ["#fffbeb","#fef3c6","#fee685","#ffd230","#ffb900","#fe9a00","#e17100","#bb4d00","#973c00","#7b3306","#461901"] },
+    { name: "yellow", scale: ["#fefce8","#fef9c2","#fff085","#ffdf20","#fdc700","#f0b100","#d08700","#a65f00","#894b00","#733e0a","#432004"] },
+    { name: "lime", scale: ["#f7fee7","#ecfcca","#d8f999","#bbf451","#9ae600","#7ccf00","#5ea500","#497d00","#3c6300","#35530e","#192e03"] },
+    { name: "green", scale: ["#f0fdf4","#dcfce7","#b9f8cf","#7bf1a8","#05df72","#00c950","#00a63e","#008236","#016630","#0d542b","#032e15"] },
+    { name: "emerald", scale: ["#ecfdf5","#d0fae5","#a4f4cf","#5ee9b5","#00d492","#00bc7d","#009966","#007a55","#006045","#004f3b","#002c22"] },
+    { name: "teal", scale: ["#f0fdfa","#cbfbf1","#96f7e4","#46ecd5","#00d5be","#00bba7","#009689","#00786f","#005f5a","#0b4f4a","#022f2e"] },
+    { name: "cyan", scale: ["#ecfeff","#cefafe","#a2f4fd","#53eafd","#00d3f2","#00b8db","#0092b8","#007595","#005f78","#104e64","#053345"] },
+    { name: "sky", scale: ["#f0f9ff","#dff2fe","#b8e6fe","#74d4ff","#00bcff","#00a6f4","#0084d1","#0069a8","#00598a","#024a70","#052f4a"] },
+    { name: "blue", scale: ["#eff6ff","#dbeafe","#bedbff","#8ec5ff","#51a2ff","#2b7fff","#155dfc","#1447e6","#193cb8","#1c398e","#162456"] },
+    { name: "indigo", scale: ["#eef2ff","#e0e7ff","#c6d2ff","#a3b3ff","#7c86ff","#615fff","#4f39f6","#432dd7","#372aac","#312c85","#1e1a4d"] },
+    { name: "violet", scale: ["#f5f3ff","#ede9fe","#ddd6ff","#c4b4ff","#a684ff","#8e51ff","#7f22fe","#7008e7","#5d0ec0","#4d179a","#2f0d68"] },
+    { name: "purple", scale: ["#faf5ff","#f3e8ff","#e9d4ff","#dab2ff","#c27aff","#ad46ff","#9810fa","#8200db","#6e11b0","#59168b","#3c0366"] },
+    { name: "fuchsia", scale: ["#fdf4ff","#fae8ff","#f6cfff","#f4a8ff","#ed6aff","#e12afb","#c800de","#a800b7","#8a0194","#721378","#4b004f"] },
+    { name: "pink", scale: ["#fdf2f8","#fce7f3","#fccee8","#fda5d5","#fb64b6","#f6339a","#e60076","#c6005c","#a3004c","#861043","#510424"] },
+    { name: "rose", scale: ["#fff1f2","#ffe4e6","#ffccd3","#ffa1ad","#ff637e","#ff2056","#ec003f","#c70036","#a50036","#8b0836","#4d0218"] }
+  ];
+  const antExplorePalettes = [
+    { name: "red", scale: ["#fff1f0","#ffccc7","#ffa39e","#ff7875","#ff4d4f","#f5222d","#cf1322","#a8071a","#820014","#5c0011"] },
+    { name: "volcano", scale: ["#fff2e8","#ffd8bf","#ffbb96","#ff9c6e","#ff7a45","#fa541c","#d4380d","#ad2102","#871400","#610b00"] },
+    { name: "orange", scale: ["#fff7e6","#ffe7ba","#ffd591","#ffc069","#ffa940","#fa8c16","#d46b08","#ad4e00","#873800","#612500"] },
+    { name: "gold", scale: ["#fffbe6","#fff1b8","#ffe58f","#ffd666","#ffc53d","#faad14","#d48806","#ad6800","#874d00","#613400"] },
+    { name: "yellow", scale: ["#feffe6","#ffffb8","#fffb8f","#fff566","#ffec3d","#fadb14","#d4b106","#ad8b00","#876800","#614700"] },
+    { name: "lime", scale: ["#fcffe6","#f4ffb8","#eaff8f","#d3f261","#bae637","#a0d911","#7cb305","#5b8c00","#3f6600","#254000"] },
+    { name: "green", scale: ["#f6ffed","#d9f7be","#b7eb8f","#95de64","#73d13d","#52c41a","#389e0d","#237804","#135200","#092b00"] },
+    { name: "cyan", scale: ["#e6fffb","#b5f5ec","#87e8de","#5cdbd3","#36cfc9","#13c2c2","#08979c","#006d75","#00474f","#002329"] },
+    { name: "blue", scale: ["#e6f4ff","#bae0ff","#91caff","#69b1ff","#4096ff","#1677ff","#0958d9","#003eb3","#002c8c","#001d66"] },
+    { name: "geekblue", scale: ["#f0f5ff","#d6e4ff","#adc6ff","#85a5ff","#597ef7","#2f54eb","#1d39c4","#10239e","#061178","#030852"] },
+    { name: "purple", scale: ["#f9f0ff","#efdbff","#d3adf7","#b37feb","#9254de","#722ed1","#531dab","#391085","#22075e","#120338"] },
+    { name: "magenta", scale: ["#fff0f6","#ffd6e7","#ffadd2","#ff85c0","#f759ab","#eb2f96","#c41d7f","#9e1068","#780650","#520339"] },
+    { name: "gray", scale: ["#a6a6a6","#999999","#8c8c8c","#808080","#737373","#666666","#404040","#1a1a1a","#000000","#000000"] }
+  ];
+  const carbonExplorePalettes = [
+    { name: "gray", scale: ["#f4f4f4","#e0e0e0","#c6c6c6","#a8a8a8","#8d8d8d","#6f6f6f","#525252","#393939","#262626","#161616"] },
+    { name: "coolGray", scale: ["#f2f4f8","#dde1e6","#c1c7cd","#a2a9b0","#878d96","#697077","#4d5358","#343a3f","#21272a","#121619"] },
+    { name: "warmGray", scale: ["#f7f3f2","#e5e0df","#cac5c4","#ada8a8","#8f8b8b","#726e6e","#565151","#3c3838","#272525","#171414"] },
+    { name: "blue", scale: ["#edf5ff","#d0e2ff","#a6c8ff","#78a9ff","#4589ff","#0f62fe","#0043ce","#002d9c","#001d6c","#001141"] },
+    { name: "cyan", scale: ["#e5f6ff","#bae6ff","#82cfff","#33b1ff","#1192e8","#0072c3","#00539a","#003a6d","#012749","#061727"] },
+    { name: "teal", scale: ["#d9fbfb","#9ef0f0","#3ddbd9","#08bdba","#009d9a","#007d79","#005d5d","#004144","#022b30","#081a1c"] },
+    { name: "green", scale: ["#defbe6","#a7f0ba","#6fdc8c","#42be65","#24a148","#198038","#0e6027","#044317","#022d0d","#071908"] },
+    { name: "red", scale: ["#fff1f1","#ffd7d9","#ffb3b8","#ff8389","#fa4d56","#da1e28","#a2191f","#750e13","#520408","#2d0709"] },
+    { name: "magenta", scale: ["#fff0f7","#ffd6e8","#ffafd2","#ff7eb6","#ee5396","#d02670","#9f1853","#740937","#510224","#2a0a18"] },
+    { name: "purple", scale: ["#f6f2ff","#e8daff","#d4bbff","#be95ff","#a56eff","#8a3ffc","#6929c4","#491d8b","#31135e","#1c0f30"] }
+  ];
+  const githubExplorePalettes = [
+    { name: "neutral", scale: ["#ffffff","#f6f8fa","#eff2f5","#e6eaef","#e0e6eb","#dae0e7","#d1d9e0","#c8d1da","#818b98","#59636e","#454c54","#393f46","#25292e","#1f2328"] },
+    { name: "blue", scale: ["#ddf4ff","#b6e3ff","#80ccff","#54aeff","#218bff","#0969da","#0550ae","#033d8b","#0a3069","#002155"] },
+    { name: "green", scale: ["#dafbe1","#aceebb","#6fdd8b","#4ac26b","#2da44e","#1a7f37","#116329","#044f1e","#003d16","#002d11"] },
+    { name: "yellow", scale: ["#fff8c5","#fae17d","#eac54f","#d4a72c","#bf8700","#9a6700","#7d4e00","#633c01","#4d2d00","#3b2300"] },
+    { name: "orange", scale: ["#fff1e5","#ffd8b5","#ffb77c","#fb8f44","#e16f24","#bc4c00","#953800","#762c00","#5c2200","#471700"] },
+    { name: "red", scale: ["#ffebe9","#ffcecb","#ffaba8","#ff8182","#fa4549","#cf222e","#a40e26","#82071e","#660018","#4c0014"] },
+    { name: "purple", scale: ["#fbefff","#ecd8ff","#d8b9ff","#c297ff","#a475f9","#8250df","#6639ba","#512a97","#3e1f79","#2e1461"] },
+    { name: "pink", scale: ["#ffeff7","#ffd3eb","#ffadda","#ff80c8","#e85aad","#bf3989","#99286e","#772057","#611347","#4d0336"] },
+    { name: "coral", scale: ["#fff0eb","#ffd6cc","#ffb4a1","#fd8c73","#ec6547","#c4432b","#9e2f1c","#801f0f","#691105","#510901"] }
+  ];
+  const polarisExplorePalettes = [
+    { name: "gray", scale: ["#ffffff","#fdfdfd","#fafafa","#f7f7f7","#f3f3f3","#f1f1f1","#ebebeb","#e3e3e3","#d4d4d4","#cccccc","#b5b5b5","#8a8a8a","#616161","#4a4a4a","#303030","#1a1a1a"] },
+    { name: "azure", scale: ["#fbfdff","#f2f9ff","#eaf4ff","#e0f0ff","#d5ebff","#cae6ff","#c0e1ff","#a8d8ff","#91d0ff","#51c0ff","#0094d5","#007cb4","#00679b","#00527c","#003a5a","#002133"] },
+    { name: "blue", scale: ["#fcfdff","#f6f8ff","#f0f2ff","#eaedff","#e2e7ff","#dbe1ff","#d5dcff","#c5d0ff","#bac7ff","#97adff","#4188ff","#0071e9","#005bd3","#004299","#002e6a","#001633"] },
+    { name: "green", scale: ["#fafffb","#e6feea","#cdfed4","#affebf","#92fcac","#6ef799","#52f490","#2ced83","#11df7b","#18bf79","#0d9c6a","#047b5d","#035e4c","#014b40","#073630","#022622"] },
+    { name: "lime", scale: ["#fafffa","#e4ffe5","#d0ffd1","#bbfebe","#9dfea0","#77fe7a","#38fe3e","#28f22f","#25e82b","#20cf27","#18a81d","#118715","#0c710f","#0b550d","#033d05","#032104"] },
+    { name: "magenta", scale: ["#fffdff","#fff5ff","#fdeffd","#fee7fe","#fcdffc","#fbd7fb","#fbcffb","#f9bef9","#f8b1f8","#f68df6","#e156e1","#c530c5","#9f269f","#791a79","#561056","#340634"] },
+    { name: "orange", scale: ["#fffdfa","#fff7ee","#fff1e3","#ffebd5","#ffe4c6","#ffddb6","#ffd6a4","#ffc879","#ffb800","#e5a500","#b28400","#956f00","#7c5800","#5e4200","#412d00","#251a00"] },
+    { name: "purple", scale: ["#fdfdff","#f8f7ff","#f3f1ff","#efeaff","#e9e5ff","#e4deff","#dfd9ff","#d4ccff","#c7bcff","#aa95ff","#9474ff","#8051ff","#7126ff","#5700d1","#3b0093","#1c004f"] },
+    { name: "red", scale: ["#fffafb","#fff6f8","#ffecef","#fee8eb","#fee1e6","#fed9df","#fed1d7","#fec1c7","#fdacb1","#f78086","#e22c38","#c70a24","#a30a24","#8e0b21","#5f0716","#2f040b"] },
+    { name: "rose", scale: ["#fffdfd","#fff6f8","#ffeff3","#ffe8ee","#ffe1e8","#ffd9e3","#fed1dd","#fec1d2","#feb5ca","#fe8eb1","#fd4b92","#e30c76","#b9075f","#8d0448","#640231","#3e011c"] },
+    { name: "teal", scale: ["#f8fffe","#e8fcfa","#d7faf7","#c3f7f2","#aaf6ef","#89f5ec","#70f0e5","#5ae6db","#2ce0d4","#1ec7bc","#00a198","#12837c","#0c6a64","#0c534f","#033c39","#062c29"] },
+    { name: "yellow", scale: ["#fffdf6","#fff8db","#fff4bf","#ffef9d","#ffeb78","#ffe600","#f7df00","#ead300","#e1cb00","#c5b200","#998a00","#827500","#695f00","#4f4700","#332e00","#1f1c00"] }
+  ];
+  const atlassianExplorePalettes = [
+    { name: "neutral", scale: ["#ffffff","#f8f8f8","#f0f1f2","#dddee1","#b7b9be","#8c8f97","#7d818a","#6b6e76","#505258","#3b3d42","#292a2e","#1e1f21"] },
+    { name: "lime", scale: ["#efffd6","#d3f1a7","#bde97c","#b3df72","#94c748","#82b536","#6a9a23","#5b7f24","#4c6b1f","#3f5224","#37471f","#28311b"] },
+    { name: "red", scale: ["#ffeceb","#ffd5d2","#ffb8b2","#fd9891","#f87168","#f15b50","#e2483d","#c9372c","#ae2e24","#872821","#5d1f1a","#42221f"] },
+    { name: "orange", scale: ["#fff5db","#fce4a6","#fbd779","#fbc828","#fca700","#f68909","#e06c00","#bd5b00","#9e4c00","#7a3b00","#693200","#3a2c1f"] },
+    { name: "yellow", scale: ["#fef7c8","#f5e989","#efdd4e","#eed12b","#ddb30e","#cf9f02","#b38600","#946f00","#7f5f01","#614a05","#533f04","#332e1b"] },
+    { name: "green", scale: ["#dcfff1","#baf3db","#97edc9","#7ee2b8","#4bce97","#2abb7f","#22a06b","#1f845a","#216e4e","#19573d","#164b35","#1c3329"] },
+    { name: "teal", scale: ["#e7f9ff","#c6edfb","#b1e4f7","#9dd9ee","#6cc3e0","#42b2d7","#2898bd","#227d9b","#206a83","#1a5265","#164555","#1e3137"] },
+    { name: "blue", scale: ["#e9f2fe","#cfe1fd","#adcbfb","#8fb8f6","#669df1","#4688ec","#357de8","#1868db","#1558bc","#144794","#123263","#1c2b42"] },
+    { name: "purple", scale: ["#f8eefe","#eed7fc","#e3bdfa","#d8a0f7","#c97cf4","#bf63f3","#af59e1","#964ac0","#803fa5","#673286","#48245d","#35243f"] },
+    { name: "magenta", scale: ["#ffecf8","#fdd0ec","#fcb6e1","#f797d2","#e774bb","#da62ac","#cd519d","#ae4787","#943d73","#77325b","#50253f","#3d2232"] }
+  ];
+  const radixExplorePalettesWithStops = makeExplorePalettes(radixExplorePalettes, "radix", [1,2,3,4,5,6,7,8,9,10,11,12]);
+  const materialExplorePalettesWithStops = makeExplorePalettes(materialExplorePalettes, "material", [50,100,200,300,400,500,600,700,800,900]);
+  const bootstrapExplorePalettesWithStops = makeExplorePalettes(bootstrapExplorePalettes, "bootstrap", [100,200,300,400,500,600,700,800,900]);
+  const tailwindExplorePalettesWithStops = makeExplorePalettes(tailwindExplorePalettes, "tailwind", [50,100,200,300,400,500,600,700,800,900,950]);
+  const antExplorePalettesWithStops = makeExplorePalettes(antExplorePalettes, "ant", [1,2,3,4,5,6,7,8,9,10]);
+  const carbonExplorePalettesWithStops = makeExplorePalettes(carbonExplorePalettes, "carbon", [10,20,30,40,50,60,70,80,90,100]);
+  const githubExplorePalettesWithStops = makeExplorePalettes(githubExplorePalettes, "github", [0,1,2,3,4,5,6,7,8,9,10,11,12,13].slice(0, githubExplorePalettes[0].scale.length));
+  const polarisExplorePalettesWithStops = makeExplorePalettes(polarisExplorePalettes, "shopify", [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+  const atlassianExplorePalettesWithStops = [
+    { ...atlassianExplorePalettes[0], system: "atlassian", scale: atlassianExplorePalettes[0].scale.map((hex, index) => ({ stop: [0,100,200,300,400,500,600,700,800,900,1000,1100][index], hex })) },
+    ...atlassianExplorePalettes.slice(1).map((palette) => ({ ...palette, system: "atlassian", scale: palette.scale.map((hex, index) => ({ stop: [100,200,250,300,400,500,600,700,800,850,900,1000][index], hex })) }))
+  ];
+  const explorePaletteSystems = [
+    { id: "radix", title: "Radix UI", subtitle: `${radixExplorePalettesWithStops.length} official palettes`, palettes: radixExplorePalettesWithStops },
+    { id: "material", title: "Material", subtitle: `${materialExplorePalettesWithStops.length} official palettes`, palettes: materialExplorePalettesWithStops },
+    { id: "bootstrap", title: "Bootstrap", subtitle: `${bootstrapExplorePalettesWithStops.length} official palettes`, palettes: bootstrapExplorePalettesWithStops },
+    { id: "tailwind", title: "Tailwind", subtitle: `${tailwindExplorePalettesWithStops.length} official palettes`, palettes: tailwindExplorePalettesWithStops },
+    { id: "ant", title: "Ant Design", subtitle: `${antExplorePalettesWithStops.length} official palettes`, palettes: antExplorePalettesWithStops },
+    { id: "carbon", title: "Carbon Design", subtitle: `${carbonExplorePalettesWithStops.length} official palettes`, palettes: carbonExplorePalettesWithStops },
+    { id: "github", title: "GitHub", subtitle: `${githubExplorePalettesWithStops.length} official palettes`, palettes: githubExplorePalettesWithStops },
+    { id: "shopify", title: "Shopify Polaris", subtitle: `${polarisExplorePalettesWithStops.length} official palettes`, palettes: polarisExplorePalettesWithStops },
+    { id: "atlassian", title: "Atlassian", subtitle: `${atlassianExplorePalettesWithStops.length} official palettes`, palettes: atlassianExplorePalettesWithStops }
   ];
 
   const colorInput = document.getElementById("colorInput");
@@ -754,6 +966,10 @@
   const insertButton = document.getElementById("insert");
   const tabs = Array.from(document.querySelectorAll(".tab"));
   const views = Array.from(document.querySelectorAll(".view"));
+
+  function supportsGeneratedSystem(system) {
+    return ["tailwind", "material", "ant", "carbon", "bootstrap", "radix"].includes(system);
+  }
 
   function renderScale() {
     scaleContainer.innerHTML = "";
@@ -877,6 +1093,7 @@
   }
 
   function triggerGeneration() {
+    exactActivePalette = null;
     let color = colorInput.value.trim();
     if (!color.startsWith("#")) color = `#${color}`;
     parent.postMessage({ pluginMessage: { type: "generate-scale", color, system: selectedSystem } }, "*");
@@ -961,47 +1178,77 @@
   }
 
   function renderExplore() {
-    exploreGrid.innerHTML = explorePresets.map((preset) => {
-      const previewScale = getPreviewScale(preset.color, preset.system);
-      return `
-        <article class="explore-card">
-          <div class="library-top">
-            <div class="library-meta">
-              <span class="library-name">${preset.name}</span>
-              <span class="library-subtitle">${preset.subtitle}</span>
-            </div>
-            <div class="library-actions">
-              <button class="action-pill icon-action" type="button" data-explore-insert="${preset.color}|${preset.system}" aria-label="Insert frame" title="Insert frame">${getInsertIcon()}</button>
-              <button class="action-pill icon-action" type="button" data-explore-load="${preset.color}|${preset.system}" aria-label="Open palette" title="Open palette">${getOpenIcon()}</button>
-            </div>
+    exploreGrid.innerHTML = explorePaletteSystems.map((group) => `
+      <details class="explore-accordion">
+        <summary class="accordion-trigger">
+          <div>
+            <div class="accordion-title">${group.title}</div>
+            <div class="accordion-meta">${group.subtitle}</div>
           </div>
-          <div class="mini-swatches" style="grid-template-columns: repeat(${previewScale.length}, minmax(0, 1fr));">
-            ${previewScale.map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
-          </div>
-        </article>
-      `;
-    }).join("");
+          <svg class="accordion-chevron" viewBox="0 0 10 6" aria-hidden="true">
+            <path d="M1 1L5 5L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </summary>
+        <div class="explore-accordion-content">
+          ${group.palettes.map((palette) => `
+            <article class="explore-card">
+              <div class="library-top">
+                <div class="library-meta">
+                  <span class="library-name">${capitalizeLabel(palette.name)}</span>
+                  <span class="library-subtitle">${group.title} scale</span>
+                </div>
+                <div class="library-actions">
+                  <button class="action-pill icon-action" type="button" data-explore-insert="${group.id}|${palette.name}" aria-label="Insert frame" title="Insert frame">${getInsertIcon()}</button>
+                  <button class="action-pill icon-action" type="button" data-explore-load="${group.id}|${palette.name}" aria-label="Open palette" title="Open palette">${getOpenIcon()}</button>
+                </div>
+              </div>
+              <div class="mini-swatches" style="grid-template-columns: repeat(${palette.scale.length}, minmax(0, 1fr));">
+                ${palette.scale.map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      </details>
+    `).join("");
   }
 
-  function getPreviewScale(color, system) {
-    const previewTargets = {
-      tailwind: [100, 300, 500, 700, 900],
-      material: [100, 300, 500, 700, 900],
-      ant: [2, 4, 6, 8, 10],
-      carbon: [20, 40, 60, 80, 100],
-      bootstrap: [100, 300, 500, 700, 900],
-      radix: [2, 5, 8, 10, 12]
-    };
+  function getExplorePalette(systemId, name) {
+    const group = explorePaletteSystems.find((item) => item.id === systemId);
+    if (!group) return null;
+    const palette = group.palettes.find((item) => item.name === name);
+    return palette ? { group, palette } : null;
+  }
 
-    const targetStops = previewTargets[system] || previewTargets.tailwind;
-    const sourceScale = generatePreviewScale(color, system);
-    return targetStops.map((stop) => {
-      const source = sourceScale.find((item) => item.stop === stop);
-      return source || { stop, hex: color };
-    });
+  function loadExactPalette(palette) {
+    exactActivePalette = {
+      name: palette.name || palette.color,
+      system: palette.system,
+      scale: palette.scale.map((item) => ({ ...item }))
+    };
+    currentScale = palette.scale.map((item) => ({ ...item }));
+    colorInput.value = palette.scale[Math.min(8, palette.scale.length - 1)].hex.toUpperCase();
+    if (supportsGeneratedSystem(palette.system)) {
+      setSelectedSystem(palette.system);
+    } else {
+      selectedSystem = palette.system;
+    }
+    setActiveView("generate");
+    renderScale();
+  }
+
+  function insertExactPalette(palette, groupTitle) {
+    parent.postMessage({
+      pluginMessage: {
+        type: "insert-custom-palette",
+        system: palette.system,
+        name: `${groupTitle} ${capitalizeLabel(palette.name)} Palette`,
+        scale: palette.scale.map((item) => ({ ...item }))
+      }
+    }, "*");
   }
 
   function loadPalette(color, system) {
+    exactActivePalette = null;
     colorInput.value = color.toUpperCase();
     setSelectedSystem(system);
     setActiveView("generate");
@@ -1021,7 +1268,7 @@
     const paletteEntry = {
       id: `${Date.now()}`,
       color: color.toUpperCase(),
-      system: selectedSystem,
+      system: exactActivePalette ? exactActivePalette.system : selectedSystem,
       scale: currentScale.map((item) => ({ ...item }))
     };
 
@@ -1108,6 +1355,10 @@
   });
 
   insertButton.addEventListener("click", () => {
+    if (exactActivePalette) {
+      insertExactPalette(exactActivePalette, capitalizeLabel(exactActivePalette.system));
+      return;
+    }
     insertPalette(colorInput.value, selectedSystem);
   });
 
@@ -1135,7 +1386,11 @@
     if (loadId) {
       const palette = savedPalettes.find((entry) => entry.id === loadId);
       if (palette) {
-        loadPalette(palette.color, palette.system);
+        if (supportsGeneratedSystem(palette.system)) {
+          loadPalette(palette.color, palette.system);
+        } else {
+          loadExactPalette(palette);
+        }
       }
       return;
     }
@@ -1144,7 +1399,11 @@
     if (insertId) {
       const palette = savedPalettes.find((entry) => entry.id === insertId);
       if (palette) {
-        insertPalette(palette.color, palette.system);
+        if (supportsGeneratedSystem(palette.system)) {
+          insertPalette(palette.color, palette.system);
+        } else {
+          insertExactPalette(palette, capitalizeLabel(palette.system));
+        }
       }
       return;
     }
@@ -1165,15 +1424,21 @@
 
     const insertPayload = actionButton.getAttribute("data-explore-insert");
     if (insertPayload) {
-      const [color, system] = insertPayload.split("|");
-      insertPalette(color, system);
+      const [systemId, paletteName] = insertPayload.split("|");
+      const found = getExplorePalette(systemId, paletteName);
+      if (found) {
+        insertExactPalette(found.palette, found.group.title);
+      }
       return;
     }
 
-    const payload = actionButton.getAttribute("data-explore-load");
-    if (!payload) return;
-    const [color, system] = payload.split("|");
-    loadPalette(color, system);
+    const loadPayload = actionButton.getAttribute("data-explore-load");
+    if (!loadPayload) return;
+    const [systemId, paletteName] = loadPayload.split("|");
+    const found = getExplorePalette(systemId, paletteName);
+    if (found) {
+      loadExactPalette(found.palette);
+    }
   });
 
   setActiveView(activeView);
