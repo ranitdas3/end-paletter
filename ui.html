@@ -1178,8 +1178,8 @@
   }
 
   function renderExplore() {
-    exploreGrid.innerHTML = explorePaletteSystems.map((group, index) => `
-      <details class="explore-accordion" ${index === 0 ? "open" : ""}>
+    exploreGrid.innerHTML = explorePaletteSystems.map((group) => `
+      <details class="explore-accordion">
         <summary class="accordion-trigger">
           <div>
             <div class="accordion-title">${group.title}</div>
