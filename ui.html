@@ -442,7 +442,7 @@
   .explore-card {
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid var(--border-soft);
-    border-radius: 16px;
+    border-radius: 8px;
     box-shadow: var(--shadow-panel);
     overflow: hidden;
   }
@@ -451,7 +451,7 @@
     padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .library-top,
@@ -484,13 +484,12 @@
 
   .mini-swatches {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    gap: 4px;
   }
 
   .mini-swatch {
-    height: 22px;
-    border-radius: 999px;
+    height: 16px;
+    border-radius: 0;
     border: 1px solid rgba(17, 17, 26, 0.05);
   }
 
@@ -498,6 +497,7 @@
   .explore-actions {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
   }
 
   .action-pill {
@@ -513,6 +513,20 @@
     font-size: 12px;
     font-weight: 600;
     transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+  }
+
+  .icon-action {
+    width: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .icon-action svg {
+    width: 16px;
+    height: 16px;
+    display: block;
   }
 
   .action-pill:hover {
@@ -594,6 +608,9 @@
   }
 
   .button-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid #24315f;
     background: linear-gradient(180deg, #31406f 0%, #22305d 100%);
     color: var(--accent-contrast);
@@ -699,7 +716,7 @@
     </section>
   </div>
 
-  <div class="footer">
+  <div class="footer" id="footer">
     <button class="button-secondary" id="saveLibrary" type="button">
       <span class="plus-icon" aria-hidden="true">+</span>
       <span class="footer-label">Save to library</span>
@@ -732,6 +749,8 @@
   const libraryList = document.getElementById("libraryList");
   const exploreGrid = document.getElementById("exploreGrid");
   const sortToggle = document.getElementById("sortToggle");
+  const footer = document.getElementById("footer");
+  const saveLibraryButton = document.getElementById("saveLibrary");
   const insertButton = document.getElementById("insert");
   const tabs = Array.from(document.querySelectorAll(".tab"));
   const views = Array.from(document.querySelectorAll(".view"));
@@ -876,11 +895,38 @@
       view.classList.toggle("active", view.dataset.viewPanel === nextView);
     });
 
-    insertButton.style.visibility = nextView === "generate" ? "visible" : "hidden";
+    const isGenerateView = nextView === "generate";
+    footer.style.display = isGenerateView ? "grid" : "none";
+    saveLibraryButton.style.display = isGenerateView ? "inline-flex" : "none";
+    insertButton.style.display = isGenerateView ? "inline-flex" : "none";
   }
 
   function capitalizeLabel(value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function getOpenIcon() {
+    return `
+      <svg viewBox="0 0 256 256" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M227.31,73.37l-44.68-44.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96A16,16,0,0,0,227.31,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.31,64l24-24L216,84.69Z"></path>
+      </svg>
+    `;
+  }
+
+  function getDeleteIcon() {
+    return `
+      <svg viewBox="0 0 256 256" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16H48V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM104,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm64,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path>
+      </svg>
+    `;
+  }
+
+  function getInsertIcon() {
+    return `
+      <svg viewBox="0 0 256 256" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"></path>
+      </svg>
+    `;
   }
 
   function renderLibrary() {
@@ -902,12 +948,13 @@
             <span class="library-subtitle">${capitalizeLabel(palette.system)} scale</span>
           </div>
           <div class="library-actions">
-            <button class="action-pill accent" type="button" data-library-load="${palette.id}">Open</button>
-            <button class="action-pill" type="button" data-library-delete="${palette.id}">Delete</button>
+            <button class="action-pill icon-action" type="button" data-library-insert="${palette.id}" aria-label="Insert frame" title="Insert frame">${getInsertIcon()}</button>
+            <button class="action-pill icon-action" type="button" data-library-load="${palette.id}" aria-label="Open palette" title="Open palette">${getOpenIcon()}</button>
+            <button class="action-pill icon-action" type="button" data-library-delete="${palette.id}" aria-label="Delete palette" title="Delete palette">${getDeleteIcon()}</button>
           </div>
         </div>
-        <div class="mini-swatches">
-          ${palette.scale.slice(0, 5).map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
+        <div class="mini-swatches" style="grid-template-columns: repeat(${palette.scale.length}, minmax(0, 1fr));">
+          ${palette.scale.map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
         </div>
       </article>
     `).join("");
@@ -918,15 +965,18 @@
       const previewScale = getPreviewScale(preset.color, preset.system);
       return `
         <article class="explore-card">
-          <div class="explore-top">
-            <div class="explore-meta">
-              <span class="explore-name">${preset.name}</span>
-              <span class="explore-subtitle">${preset.subtitle}</span>
+          <div class="library-top">
+            <div class="library-meta">
+              <span class="library-name">${preset.name}</span>
+              <span class="library-subtitle">${preset.subtitle}</span>
             </div>
-            <button class="action-pill accent" type="button" data-explore-load="${preset.color}|${preset.system}">Use</button>
+            <div class="library-actions">
+              <button class="action-pill icon-action" type="button" data-explore-insert="${preset.color}|${preset.system}" aria-label="Insert frame" title="Insert frame">${getInsertIcon()}</button>
+              <button class="action-pill icon-action" type="button" data-explore-load="${preset.color}|${preset.system}" aria-label="Open palette" title="Open palette">${getOpenIcon()}</button>
+            </div>
           </div>
-          <div class="explore-strip">
-            ${previewScale.slice(1, 5).map(({ hex }) => `<span style="background:${hex}"></span>`).join("")}
+          <div class="mini-swatches" style="grid-template-columns: repeat(${previewScale.length}, minmax(0, 1fr));">
+            ${previewScale.map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
           </div>
         </article>
       `;
@@ -956,6 +1006,12 @@
     setSelectedSystem(system);
     setActiveView("generate");
     triggerGeneration();
+  }
+
+  function insertPalette(color, system) {
+    let normalizedColor = color.trim();
+    if (!normalizedColor.startsWith("#")) normalizedColor = `#${normalizedColor}`;
+    parent.postMessage({ pluginMessage: { type: "insert-palette", color: normalizedColor, system } }, "*");
   }
 
   function saveCurrentPalette() {
@@ -1052,9 +1108,7 @@
   });
 
   insertButton.addEventListener("click", () => {
-    let color = colorInput.value.trim();
-    if (!color.startsWith("#")) color = `#${color}`;
-    parent.postMessage({ pluginMessage: { type: "insert-palette", color, system: selectedSystem } }, "*");
+    insertPalette(colorInput.value, selectedSystem);
   });
 
   window.onmessage = (event) => {
@@ -1074,8 +1128,10 @@
   libraryList.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
+    const actionButton = target.closest("[data-library-load], [data-library-insert], [data-library-delete]");
+    if (!(actionButton instanceof Element)) return;
 
-    const loadId = target.getAttribute("data-library-load");
+    const loadId = actionButton.getAttribute("data-library-load");
     if (loadId) {
       const palette = savedPalettes.find((entry) => entry.id === loadId);
       if (palette) {
@@ -1084,7 +1140,16 @@
       return;
     }
 
-    const deleteId = target.getAttribute("data-library-delete");
+    const insertId = actionButton.getAttribute("data-library-insert");
+    if (insertId) {
+      const palette = savedPalettes.find((entry) => entry.id === insertId);
+      if (palette) {
+        insertPalette(palette.color, palette.system);
+      }
+      return;
+    }
+
+    const deleteId = actionButton.getAttribute("data-library-delete");
     if (deleteId) {
       savedPalettes = savedPalettes.filter((entry) => entry.id !== deleteId);
       renderLibrary();
@@ -1095,10 +1160,18 @@
   exploreGrid.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
+    const actionButton = target.closest("[data-explore-load], [data-explore-insert]");
+    if (!(actionButton instanceof Element)) return;
 
-    const payload = target.getAttribute("data-explore-load");
+    const insertPayload = actionButton.getAttribute("data-explore-insert");
+    if (insertPayload) {
+      const [color, system] = insertPayload.split("|");
+      insertPalette(color, system);
+      return;
+    }
+
+    const payload = actionButton.getAttribute("data-explore-load");
     if (!payload) return;
-
     const [color, system] = payload.split("|");
     loadPalette(color, system);
   });
