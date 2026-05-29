@@ -424,15 +424,9 @@
     letter-spacing: -0.04em;
   }
 
-  .section-copy {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--text-muted);
-  }
-
   .library-list,
-  .explore-grid {
+  .explore-grid,
+  .explore-accordion-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -552,18 +546,59 @@
     gap: 10px;
   }
 
-  .explore-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    min-height: 42px;
-    border-radius: 12px;
+  .explore-accordion {
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-panel);
     overflow: hidden;
   }
 
-  .explore-strip span {
-    display: block;
-    min-height: 42px;
+  .explore-accordion summary {
+    list-style: none;
+  }
+
+  .explore-accordion summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .accordion-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .accordion-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .accordion-chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    transition: transform 0.16s ease;
+    flex-shrink: 0;
+  }
+
+  .explore-accordion[open] .accordion-chevron {
+    transform: rotate(180deg);
+  }
+
+  .explore-accordion-content {
+    padding: 0 12px 12px;
+    border-top: 1px solid var(--border-soft);
   }
 
   .footer {
@@ -709,7 +744,6 @@
       <div class="section-stack">
         <div class="section-header">
           <h2 class="section-title">Explore</h2>
-          <p class="section-copy">Jump into a few curated starting points, then refine them in the Generate section.</p>
         </div>
         <div class="explore-grid" id="exploreGrid"></div>
       </div>
@@ -731,14 +765,43 @@
   let selectedSystem = "tailwind";
   let activeView = "generate";
   let savedPalettes = [];
-  const explorePresets = [
-    { name: "Skyline", color: "#3B82F6", system: "tailwind", subtitle: "Clean app blue" },
-    { name: "Rose Studio", color: "#D6407D", system: "radix", subtitle: "Radix-flavored pink" },
-    { name: "Aurora", color: "#0EA5A4", system: "material", subtitle: "Fresh teal ramp" },
-    { name: "Citrus", color: "#F59E0B", system: "bootstrap", subtitle: "Warm signal orange" },
-    { name: "Velvet", color: "#7C3AED", system: "ant", subtitle: "Bold interface purple" },
-    { name: "Forest", color: "#15803D", system: "carbon", subtitle: "Muted product green" }
-  ];
+  const radixExplorePalettes = [
+    { name: "gray", scale: ["#fcfcfc", "#f9f9f9", "#f0f0f0", "#e8e8e8", "#e0e0e0", "#d9d9d9", "#cecece", "#bbbbbb", "#8d8d8d", "#838383", "#646464", "#202020"] },
+    { name: "mauve", scale: ["#fdfcfd", "#faf9fb", "#f2eff3", "#eae7ec", "#e3dfe6", "#dbd8e0", "#d0cdd7", "#bcbac7", "#8e8c99", "#84828e", "#65636d", "#211f26"] },
+    { name: "slate", scale: ["#fcfcfd", "#f9f9fb", "#f0f0f3", "#e8e8ec", "#e0e1e6", "#d9d9e0", "#cdced6", "#b9bbc6", "#8b8d98", "#80838d", "#60646c", "#1c2024"] },
+    { name: "sage", scale: ["#fbfdfc", "#f7f9f8", "#eef1f0", "#e6e9e8", "#dfe2e0", "#d7dad9", "#cbcfcd", "#b8bcba", "#868e8b", "#7c8481", "#5f6563", "#1a211e"] },
+    { name: "olive", scale: ["#fcfdfc", "#f8faf8", "#eff1ef", "#e7e9e7", "#dfe2df", "#d7dad7", "#cccfcc", "#b9bcb8", "#898e87", "#7f847d", "#60655f", "#1d211c"] },
+    { name: "sand", scale: ["#fdfdfc", "#f9f9f8", "#f1f0ef", "#e9e8e6", "#e2e1de", "#dad9d6", "#cfceca", "#bcbbb5", "#8d8d86", "#82827c", "#63635e", "#21201c"] },
+    { name: "gold", scale: ["#fdfdfc", "#faf9f2", "#f2f0e7", "#eae6db", "#e1dccf", "#d8d0bf", "#cbc0aa", "#b9a88d", "#978365", "#8c7a5e", "#71624b", "#3b352b"] },
+    { name: "bronze", scale: ["#fdfcfc", "#fdf7f5", "#f6edea", "#efe4df", "#e7d9d3", "#dfcdc5", "#d3bcb3", "#c2a499", "#a18072", "#957468", "#7d5e54", "#43302b"] },
+    { name: "brown", scale: ["#fefdfc", "#fcf9f6", "#f6eee7", "#f0e4d9", "#ebdaca", "#e4cdb7", "#dcbc9f", "#cea37e", "#ad7f58", "#a07553", "#815e46", "#3e332e"] },
+    { name: "yellow", scale: ["#fdfdf9", "#fefce9", "#fffab8", "#fff394", "#ffe770", "#f3d768", "#e4c767", "#d5ae39", "#ffe629", "#ffdc00", "#9e6c00", "#473b1f"] },
+    { name: "amber", scale: ["#fefdfb", "#fefbe9", "#fff7c2", "#ffee9c", "#fbe577", "#f3d673", "#e9c162", "#e2a336", "#ffc53d", "#ffba18", "#ab6400", "#4f3422"] },
+    { name: "orange", scale: ["#fefcfb", "#fff7ed", "#ffefd6", "#ffdfb5", "#ffd19a", "#ffc182", "#f5ae73", "#ec9455", "#f76b15", "#ef5f00", "#cc4e00", "#582d1d"] },
+    { name: "tomato", scale: ["#fffcfc", "#fff8f7", "#feebe7", "#ffdcd3", "#ffcdc2", "#fdbdaf", "#f5a898", "#ec8e7b", "#e54d2e", "#dd4425", "#d13415", "#5c271f"] },
+    { name: "red", scale: ["#fffcfc", "#fff7f7", "#feebec", "#ffdbdc", "#ffcdce", "#fdbdbe", "#f4a9aa", "#eb8e90", "#e5484d", "#dc3e42", "#ce2c31", "#641723"] },
+    { name: "ruby", scale: ["#fffcfd", "#fff7f8", "#feeaed", "#ffdce1", "#ffced6", "#f8bfc8", "#efacb8", "#e592a3", "#e54666", "#dc3b5d", "#ca244d", "#64172b"] },
+    { name: "crimson", scale: ["#fffcfd", "#fef7f9", "#ffe9f0", "#fedce7", "#facedd", "#f3bed1", "#eaacc3", "#e093b2", "#e93d82", "#df3478", "#cb1d63", "#621639"] },
+    { name: "pink", scale: ["#fffcfe", "#fef7fb", "#fee9f5", "#fbdcef", "#f6cee7", "#efbfdd", "#e7acd0", "#dd93c2", "#d6409f", "#cf3897", "#c2298a", "#651249"] },
+    { name: "plum", scale: ["#fefcff", "#fdf7fd", "#fbebfb", "#f7def8", "#f2d1f3", "#e9c2ec", "#deade3", "#cf91d8", "#ab4aba", "#a144af", "#953ea3", "#53195d"] },
+    { name: "purple", scale: ["#fefcfe", "#fbf7fe", "#f7edfe", "#f2e2fc", "#ead5f9", "#e0c4f4", "#d1afec", "#be93e4", "#8e4ec6", "#8347b9", "#8145b5", "#402060"] },
+    { name: "violet", scale: ["#fdfcfe", "#faf8ff", "#f4f0fe", "#ebe4ff", "#e1d9ff", "#d4cafe", "#c2b5f5", "#aa99ec", "#6e56cf", "#654dc4", "#6550b9", "#2f265f"] },
+    { name: "iris", scale: ["#fdfdff", "#f8f8ff", "#f0f1fe", "#e6e7ff", "#dadcff", "#cbcdff", "#b8baf8", "#9b9ef0", "#5b5bd6", "#5151cd", "#5753c6", "#272962"] },
+    { name: "indigo", scale: ["#fdfdfe", "#f7f9ff", "#edf2fe", "#e1e9ff", "#d2deff", "#c1d0ff", "#abbdf9", "#8da4ef", "#3e63dd", "#3358d4", "#3a5bc7", "#1f2d5c"] },
+    { name: "blue", scale: ["#fbfdff", "#f4faff", "#e6f4fe", "#d5efff", "#c2e5ff", "#acd8fc", "#8ec8f6", "#5eb1ef", "#0090ff", "#0588f0", "#0d74ce", "#113264"] },
+    { name: "cyan", scale: ["#fafdfe", "#f2fafb", "#def7f9", "#caf1f6", "#b5e9f0", "#9ddde7", "#7dcedc", "#3db9cf", "#00a2c7", "#0797b9", "#107d98", "#0d3c48"] },
+    { name: "teal", scale: ["#fafefd", "#f3fbf9", "#e0f8f3", "#ccf3ea", "#b8eae0", "#a1ded2", "#83cdc1", "#53b9ab", "#12a594", "#0d9b8a", "#008573", "#0d3d38"] },
+    { name: "jade", scale: ["#fbfefd", "#f4fbf7", "#e6f7ed", "#d6f1e3", "#c3e9d7", "#acdec8", "#8bceb6", "#56ba9f", "#29a383", "#26997b", "#208368", "#1d3b31"] },
+    { name: "green", scale: ["#fbfefc", "#f4fbf6", "#e6f6eb", "#d6f1df", "#c4e8d1", "#adddc0", "#8eceaa", "#5bb98b", "#30a46c", "#2b9a66", "#218358", "#193b2d"] },
+    { name: "grass", scale: ["#fbfefb", "#f5fbf5", "#e9f6e9", "#daf1db", "#c9e8ca", "#b2ddb5", "#94ce9a", "#65ba74", "#46a758", "#3e9b4f", "#2a7e3b", "#203c25"] },
+    { name: "lime", scale: ["#fcfdfa", "#f8faf3", "#eef6d6", "#e2f0bd", "#d3e7a6", "#c2da91", "#abc978", "#8db654", "#bdee63", "#b0e64c", "#5c7c2f", "#37401c"] },
+    { name: "mint", scale: ["#f9fefd", "#f2fbf9", "#ddf9f2", "#c8f4e9", "#b3ecde", "#9ce0d0", "#7ecfbd", "#4cbba5", "#86ead4", "#7de0cb", "#027864", "#16433c"] },
+    { name: "sky", scale: ["#f9feff", "#f1fafd", "#e1f6fd", "#d1f0fa", "#bee7f5", "#a9daed", "#8dcae3", "#60b3d7", "#7ce2fe", "#74daf8", "#00749e", "#1d3e56"] }
+  ].map((palette) => ({
+    ...palette,
+    system: "radix",
+    scale: palette.scale.map((hex, index) => ({ stop: index + 1, hex }))
+  }));
 
   const colorInput = document.getElementById("colorInput");
   const generateInline = document.getElementById("generateInline");
@@ -961,44 +1024,61 @@
   }
 
   function renderExplore() {
-    exploreGrid.innerHTML = explorePresets.map((preset) => {
-      const previewScale = getPreviewScale(preset.color, preset.system);
-      return `
-        <article class="explore-card">
-          <div class="library-top">
-            <div class="library-meta">
-              <span class="library-name">${preset.name}</span>
-              <span class="library-subtitle">${preset.subtitle}</span>
-            </div>
-            <div class="library-actions">
-              <button class="action-pill icon-action" type="button" data-explore-insert="${preset.color}|${preset.system}" aria-label="Insert frame" title="Insert frame">${getInsertIcon()}</button>
-              <button class="action-pill icon-action" type="button" data-explore-load="${preset.color}|${preset.system}" aria-label="Open palette" title="Open palette">${getOpenIcon()}</button>
-            </div>
+    exploreGrid.innerHTML = `
+      <details class="explore-accordion" open>
+        <summary class="accordion-trigger">
+          <div>
+            <div class="accordion-title">Radix UI</div>
+            <div class="accordion-meta">${radixExplorePalettes.length} official palettes</div>
           </div>
-          <div class="mini-swatches" style="grid-template-columns: repeat(${previewScale.length}, minmax(0, 1fr));">
-            ${previewScale.map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
-          </div>
-        </article>
-      `;
-    }).join("");
+          <svg class="accordion-chevron" viewBox="0 0 10 6" aria-hidden="true">
+            <path d="M1 1L5 5L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </summary>
+        <div class="explore-accordion-content">
+          ${radixExplorePalettes.map((palette) => `
+            <article class="explore-card">
+              <div class="library-top">
+                <div class="library-meta">
+                  <span class="library-name">${capitalizeLabel(palette.name)}</span>
+                  <span class="library-subtitle">Radix UI scale</span>
+                </div>
+                <div class="library-actions">
+                  <button class="action-pill icon-action" type="button" data-explore-insert="${palette.name}" aria-label="Insert frame" title="Insert frame">${getInsertIcon()}</button>
+                  <button class="action-pill icon-action" type="button" data-explore-load="${palette.name}" aria-label="Open palette" title="Open palette">${getOpenIcon()}</button>
+                </div>
+              </div>
+              <div class="mini-swatches" style="grid-template-columns: repeat(${palette.scale.length}, minmax(0, 1fr));">
+                ${palette.scale.map(({ hex }) => `<span class="mini-swatch" style="background:${hex}"></span>`).join("")}
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      </details>
+    `;
   }
 
-  function getPreviewScale(color, system) {
-    const previewTargets = {
-      tailwind: [100, 300, 500, 700, 900],
-      material: [100, 300, 500, 700, 900],
-      ant: [2, 4, 6, 8, 10],
-      carbon: [20, 40, 60, 80, 100],
-      bootstrap: [100, 300, 500, 700, 900],
-      radix: [2, 5, 8, 10, 12]
-    };
+  function getRadixPalette(name) {
+    return radixExplorePalettes.find((palette) => palette.name === name) || null;
+  }
 
-    const targetStops = previewTargets[system] || previewTargets.tailwind;
-    const sourceScale = generatePreviewScale(color, system);
-    return targetStops.map((stop) => {
-      const source = sourceScale.find((item) => item.stop === stop);
-      return source || { stop, hex: color };
-    });
+  function loadExactPalette(palette) {
+    currentScale = palette.scale.map((item) => ({ ...item }));
+    colorInput.value = palette.scale[8].hex.toUpperCase();
+    setSelectedSystem("radix");
+    setActiveView("generate");
+    renderScale();
+  }
+
+  function insertExactPalette(palette) {
+    parent.postMessage({
+      pluginMessage: {
+        type: "insert-custom-palette",
+        system: "radix",
+        name: `Radix ${capitalizeLabel(palette.name)} Palette`,
+        scale: palette.scale.map((item) => ({ ...item }))
+      }
+    }, "*");
   }
 
   function loadPalette(color, system) {
@@ -1163,17 +1243,21 @@
     const actionButton = target.closest("[data-explore-load], [data-explore-insert]");
     if (!(actionButton instanceof Element)) return;
 
-    const insertPayload = actionButton.getAttribute("data-explore-insert");
-    if (insertPayload) {
-      const [color, system] = insertPayload.split("|");
-      insertPalette(color, system);
+    const insertName = actionButton.getAttribute("data-explore-insert");
+    if (insertName) {
+      const palette = getRadixPalette(insertName);
+      if (palette) {
+        insertExactPalette(palette);
+      }
       return;
     }
 
-    const payload = actionButton.getAttribute("data-explore-load");
-    if (!payload) return;
-    const [color, system] = payload.split("|");
-    loadPalette(color, system);
+    const loadName = actionButton.getAttribute("data-explore-load");
+    if (!loadName) return;
+    const palette = getRadixPalette(loadName);
+    if (palette) {
+      loadExactPalette(palette);
+    }
   });
 
   setActiveView(activeView);
