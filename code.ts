@@ -1,6 +1,6 @@
 figma.showUI(__html__, { width: 400, height: 600 });
 
-type PaletteSystem = 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix';
+type PaletteSystem = 'tailwind' | 'material' | 'ant' | 'carbon' | 'bootstrap' | 'radix' | 'github' | 'shopify' | 'atlassian';
 
 type PaletteEntry = {
   id: string;
