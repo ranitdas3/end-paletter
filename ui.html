@@ -978,7 +978,17 @@
     return ["tailwind", "material", "ant", "carbon", "bootstrap", "radix"].includes(system);
   }
 
-  function renderScale() {
+  function renderScale(hasError = false) {
+    if (hasError) {
+      scaleContainer.innerHTML = `
+        <div class="placeholder-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--text-muted); margin-top: 12px; border: 1px dashed var(--border-strong); box-shadow: none; background: transparent; padding: 32px 16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.13,104.13,0,0,0,128,24Zm-18.34,98.34a8,8,0,0,1-11.32,11.32L88,123.31,77.66,133.66a8,8,0,0,1-11.32-11.32L76.69,112,66.34,101.66A8,8,0,0,1,77.66,90.34L88,100.69,98.34,90.34a8,8,0,0,1,11.32,11.32L99.31,112ZM128,192a12,12,0,1,1,12-12A12,12,0,0,1,128,192Zm61.66-69.66a8,8,0,0,1-11.32,11.32L168,123.31l-10.34,10.35a8,8,0,0,1-11.32-11.32L156.69,112l-10.35-10.34a8,8,0,0,1,11.32-11.32L168,100.69l10.34-10.35a8,8,0,0,1,11.32,11.32L179.31,112Z"></path></svg>
+          <span style="font-size: var(--fs-sm); font-weight: 500; line-height: 1.4;">Hmm, that doesn't look right.<br>Try something like #3B82F6.</span>
+        </div>
+      `;
+      return;
+    }
+
     scaleContainer.innerHTML = "";
 
     const scaleToRender = sortAscending ? currentScale : [...currentScale].reverse();
@@ -1103,6 +1113,13 @@
     exactActivePalette = null;
     let color = colorInput.value.trim();
     if (!color.startsWith("#")) color = `#${color}`;
+    
+    const isValidHex = /^#([0-9A-F]{3}){1,2}$/i.test(color);
+    if (!isValidHex) {
+      renderScale(true);
+      return;
+    }
+
     parent.postMessage({ pluginMessage: { type: "generate-scale", color, system: selectedSystem } }, "*");
   }
 
