@@ -653,8 +653,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #24315f;
-    background: linear-gradient(180deg, #31406f 0%, #22305d 100%);
+    border: 1px solid var(--accent-strong);
+    background: var(--accent-strong);
     color: var(--accent-contrast);
     border-radius: var(--radius-sm);
     box-shadow:
@@ -664,11 +664,11 @@
   }
 
   .button-primary:hover {
-    background: linear-gradient(180deg, #37487b 0%, #243462 100%);
+    background: var(--accent);
   }
 
   .button-primary:active {
-    background: linear-gradient(180deg, #22305d 0%, #1d294f 100%);
+    background: var(--accent-strong);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.12),
       0 1px 1px rgba(17, 17, 26, 0.16);
