@@ -14,6 +14,7 @@
     --accent: #0055F4;
     --accent-strong: #0E189D;
     --accent-contrast: #ffffff;
+    --icon-color: var(--text-strong);
     --shadow-panel: none;
     --shadow-soft: none;
     /* Refined radii */
@@ -279,7 +280,7 @@
     width: 10px;
     height: 10px;
     margin-top: -5px;
-    color: var(--text-muted);
+    color: var(--icon-color);
     pointer-events: none;
     transition: transform 0.16s ease;
   }
@@ -340,7 +341,7 @@
     justify-content: center;
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
-    color: var(--text-muted);
+    color: var(--icon-color);
     background: transparent;
     transition: all 0.16s ease;
   }
@@ -634,9 +635,9 @@
   }
 
   .accordion-chevron {
-    width: 16px;
-    height: 16px;
-    color: var(--text-muted);
+    width: 12px;
+    height: 12px;
+    color: var(--icon-color);
     transition: transform 0.16s ease;
     flex-shrink: 0;
   }
@@ -723,9 +724,18 @@
   }
 
   .plus-icon {
-    font-size: var(--fs-lg);
-    line-height: 1;
-    font-weight: 500;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .plus-icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
   }
 
   .footer-label {
@@ -755,8 +765,8 @@
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
             <span class="field-label">Palette system</span>
             <button id="sortToggle" class="icon-button-small" type="button" aria-label="Toggle sort order">
-              <svg id="sortIcon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true" style="transition: transform 0.16s ease;">
-                <path d="M3.78233 2.21713C3.70732 2.14212 3.60557 2.09998 3.49949 2.09998C3.3934 2.09998 3.29166 2.14212 3.21664 2.21713L1.21664 4.21713C1.06044 4.37334 1.06044 4.62661 1.21664 4.78282C1.37285 4.93903 1.62612 4.93903 1.78233 4.78282L3.09949 3.46566L3.09949 11.5343L1.78233 10.2171C1.62612 10.0609 1.37285 10.0609 1.21664 10.2171C1.06043 10.3733 1.06043 10.6266 1.21664 10.7828L3.21664 12.7828C3.29166 12.8578 3.3934 12.9 3.49949 12.9C3.60557 12.9 3.70731 12.8578 3.78233 12.7828L5.78233 10.7828C5.93854 10.6266 5.93854 10.3733 5.78233 10.2171C5.62612 10.0609 5.37285 10.0609 5.21664 10.2171L3.89949 11.5343L3.89949 3.46566L5.21664 4.78282C5.37285 4.93903 5.62612 4.93903 5.78233 4.78282C5.93854 4.62661 5.93854 4.37334 5.78233 4.21713L3.78233 2.21713ZM8.49998 3.99997C8.22383 3.99997 7.99998 4.22382 7.99998 4.49997C7.99998 4.77611 8.22383 4.99997 8.49998 4.99997H14.5C14.7761 4.99997 15 4.77611 15 4.49997C15 4.22382 14.7761 3.99997 14.5 3.99997H8.49998ZM7.99998 7.49997C7.99998 7.22382 8.22383 6.99997 8.49998 6.99997H14.5C14.7761 6.99997 15 7.22382 15 7.49997C15 7.77611 14.7761 7.99997 14.5 7.99997H8.49998C8.22383 7.99997 7.99998 7.77611 7.99998 7.49997ZM8.49998 9.99997C8.22383 9.99997 7.99998 10.2238 7.99998 10.5C7.99998 10.7761 8.22383 11 8.49998 11H14.5C14.7761 11 15 10.7761 15 10.5C15 10.2238 14.7761 9.99997 14.5 9.99997H8.49998Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+              <svg id="sortIcon" width="15" height="15" viewBox="0 0 256 256" fill="none" aria-hidden="true" style="transition: transform 0.16s ease;">
+                <path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM101.66,53.66,120,35.31V96a8,8,0,0,0,16,0V35.31l18.34,18.35a8,8,0,0,0,11.32-11.32l-32-32a8,8,0,0,0-11.32,0l-32,32a8,8,0,0,0,11.32,11.32Zm52.68,148.68L136,220.69V160a8,8,0,0,0-16,0v60.69l-18.34-18.35a8,8,0,0,0-11.32,11.32l32,32a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z" fill="currentColor"></path>
               </svg>
             </button>
           </div>
@@ -801,7 +811,7 @@
 
   <div class="footer" id="footer">
     <button class="button-secondary" id="saveLibrary" type="button">
-      <span class="plus-icon" aria-hidden="true">+</span>
+      <span class="plus-icon" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32A8,8,0,0,1,176,128Z"></path></svg></span>
       <span class="footer-label">Save to library</span>
     </button>
     <button class="button-primary" id="insert" type="button">Export Frames</button>
@@ -1251,8 +1261,8 @@
             <div class="accordion-title">${group.title}</div>
             <div class="accordion-meta">${group.subtitle}</div>
           </div>
-          <svg class="accordion-chevron" viewBox="0 0 10 6" aria-hidden="true">
-            <path d="M1 1L5 5L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          <svg class="accordion-chevron" viewBox="0 0 256 256" aria-hidden="true">
+            <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z" fill="currentColor"></path>
           </svg>
         </summary>
         <div class="explore-accordion-content">
