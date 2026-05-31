@@ -12,10 +12,10 @@
     --text-muted: #8A8A8A;
     --text-subtle: #8b8894;
     --accent: #0055F4;
-    --accent-strong: #1D27B3;
+    --accent-strong: #0E189D;
     --accent-contrast: #ffffff;
-    --shadow-panel: 0 8px 20px rgba(17, 17, 26, 0.06);
-    --shadow-soft: 0 1px 2px rgba(17, 17, 26, 0.06);
+    --shadow-panel: none;
+    --shadow-soft: none;
     --radius-xsm: 4px;
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -62,9 +62,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background:
-      radial-gradient(circle at top right, rgba(62, 99, 221, 0.08), transparent 42%),
-      linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
+    background: var(--bg-app);
   }
 
   .tabs {
@@ -169,7 +167,7 @@
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 248, 250, 0.96) 100%);
     color: var(--text-strong);
     font-size: var(--fs-xs);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.01em;
     box-shadow: 0 1px 2px rgba(17, 17, 26, 0.04);
     transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
@@ -293,7 +291,7 @@
   .menu-item.active {
     background: var(--bg-accent);
     color: var(--accent-strong);
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .icon-button-small {
@@ -361,7 +359,7 @@
 
   .stop-label {
     font-size: var(--fs-base);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.03em;
     text-align: right;
   }
@@ -375,7 +373,7 @@
 
   .hex-label {
     font-size: var(--fs-sm);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
     text-transform: lowercase;
   }
@@ -427,7 +425,7 @@
   .section-title {
     margin: 0;
     font-size: var(--fs-lg);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.04em;
   }
 
@@ -473,7 +471,7 @@
   .library-name,
   .explore-name {
     font-size: var(--fs-sm);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
 
@@ -485,13 +483,13 @@
 
   .mini-swatches {
     display: grid;
-    gap: 4px;
+    gap: 0;
   }
 
   .mini-swatch {
     height: 16px;
     border-radius: 0;
-    border: 1px solid rgba(17, 17, 26, 0.05);
+    border: none;
   }
 
   .library-actions,
@@ -512,7 +510,7 @@
     background: var(--bg-panel);
     color: var(--text-strong);
     font-size: var(--fs-xs);
-    font-weight: 700;
+    font-weight: 600;
     transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
   }
 
@@ -582,7 +580,7 @@
 
   .accordion-title {
     font-size: var(--fs-sm);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
 
@@ -663,9 +661,9 @@
       0 8px 18px rgba(31, 42, 86, 0.18);
   }
 
-  .button-primary:hover {
-    background: var(--accent);
-  }
+    .button-primary:hover {
+      background: var(--accent-strong);
+    }
 
   .button-primary:active {
     background: var(--accent-strong);
@@ -762,7 +760,7 @@
       <span class="plus-icon" aria-hidden="true">+</span>
       <span class="footer-label">Save to library</span>
     </button>
-    <button class="button-primary" id="insert" type="button">Insert frame</button>
+    <button class="button-primary" id="insert" type="button">Export Frames</button>
   </div>
 </div>
 
