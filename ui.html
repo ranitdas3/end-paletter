@@ -6,8 +6,8 @@
     --bg-hover: #f1f1f3;
     --bg-active: #ececee;
     --bg-accent: #edf0fe;
-    --border-soft: #e7e7e9;
-    --border-strong: #d9d9de;
+    --border-soft: #f0f0f0;
+    --border-strong: #e8e8e8;
     --text-strong: #121212;
     --text-muted: #8A8A8A;
     --text-subtle: #8b8894;
@@ -16,18 +16,26 @@
     --accent-contrast: #ffffff;
     --shadow-panel: none;
     --shadow-soft: none;
-    --radius-xsm: 4px;
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
+    /* Refined radii */
+    --radius-xsm: 3px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    /* Smaller font scale */
     --font-ui: "Geist Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --fs-xs: 11.11px;
-    --fs-sm: 13.33px;
-    --fs-base: 16px;
-    --fs-md: 19.2px;
-    --fs-lg: 23.04px;
-    --fs-xl: 27.65px;
+    --fs-xs: 10px;
+    --fs-sm: 12px;
+    --fs-base: 14px;
+    --fs-md: 17px;
+    --fs-lg: 20px;
+    --fs-xl: 24px;
+    /* Motion */
+    --transition-fast: all 0.12s ease;
+    --transition-medium: all 0.16s ease;
+    --transition-slow: all 0.24s ease;
   }
+
+
 
   * {
     box-sizing: border-box;
@@ -78,13 +86,39 @@
 
   .tab {
     position: relative;
-    padding: 15px 10px 13px;
+    padding: 12px 10px 10px;
     color: var(--text-muted);
     font-size: var(--fs-sm);
     font-weight: 500;
     letter-spacing: -0.01em;
-    transition: color 0.16s ease, background-color 0.16s ease;
+    transition: var(--transition-medium);
+    cursor: pointer;
   }
+
+  .tab + .tab {
+    border-left: 1px solid var(--border-soft);
+  }
+
+  .tab:hover {
+    color: var(--text-strong);
+    background: var(--bg-subtle);
+  }
+
+  .tab.active {
+    color: var(--accent-strong);
+  }
+
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: var(--radius-xsm) var(--radius-xsm) 0 0;
+  }
+
 
   .tab + .tab {
     border-left: 1px solid var(--border-soft);
@@ -119,10 +153,14 @@
   .view {
     display: none;
     min-height: calc(100vh - 54px - 74px);
+    view-transition-name: view-panel;
+    opacity: 0;
+    transition: opacity var(--transition-medium);
   }
 
   .view.active {
     display: block;
+    opacity: 1;
   }
 
   .surface {
@@ -310,7 +348,7 @@
   .icon-button-small:hover {
     background: var(--bg-hover);
     color: var(--text-strong);
-    border-color: var(--border-soft);
+
   }
 
   .icon-button-small:focus-visible {
@@ -334,7 +372,7 @@
 
   .icon-button:hover {
     background: var(--bg-hover);
-    border-color: #c7c7cf;
+    border-color: var(--border-soft);
   }
 
   .icon-button:focus-visible {
@@ -500,8 +538,8 @@
   }
 
   .action-pill {
-    min-height: 30px;
-    padding: 0 10px;
+    min-height: 28px;
+    padding: 0 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -510,9 +548,15 @@
     background: var(--bg-panel);
     color: var(--text-strong);
     font-size: var(--fs-xs);
-    font-weight: 600;
-    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    font-weight: 500;
+    transition: var(--transition-medium);
   }
+
+  .action-pill:hover {
+    background: var(--bg-subtle);
+    border-color: var(--border-strong);
+  }
+
 
   .icon-action {
     width: 32px;
@@ -530,7 +574,7 @@
 
   .action-pill:hover {
     background: var(--bg-hover);
-    border-color: #d2d2d8;
+    border-color: var(--border-soft);
   }
 
   .action-pill.accent {
@@ -644,7 +688,7 @@
 
   .button-secondary:hover {
     background: var(--bg-hover);
-    border-color: #d2d2d8;
+    border-color: var(--border-soft);
   }
 
   .button-primary {
